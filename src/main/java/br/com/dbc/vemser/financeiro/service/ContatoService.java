@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class ContatoService extends Servico {
@@ -38,10 +37,12 @@ public class ContatoService extends Servico {
         }
     }
 
-    public List<ContatoDTO> listarContatosDoCliente(Integer idCliente) throws BancoDeDadosException, RegraDeNegocioException {
-        //Validando cliente
-        clienteService.visualizarCliente(idCliente);
-        return contatoRepository.listarContatosPorPessoa(idCliente).stream()
+    public List<ContatoDTO> listarContatosDoCliente(Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        return contatoRepository.listarContatosPorPessoa(
+                        clienteService.visualizarCliente(
+                                contaService.validandoAcessoConta(numeroConta, senha).getCliente().getIdCliente()
+                        ).getIdCliente()
+                ).stream()
                 .map(contato -> objectMapper.convertValue(contato, ContatoDTO.class))
                 .toList();
     }
@@ -57,10 +58,8 @@ public class ContatoService extends Servico {
     }
 
     public ContatoDTO adicionar(ContatoCreateDTO contatoCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        //Validando cliente
         contaService.validandoAcessoConta(numeroConta, senha);
         clienteService.visualizarCliente(contatoCreateDTO.getIdCliente());
-        //Validando se o cliente já possui aquele telefone registrado
         validarNumeroContato(contatoCreateDTO);
         Contato contato = objectMapper.convertValue(contatoCreateDTO, Contato.class);
         return objectMapper.convertValue(this.contatoRepository.adicionar(contato), ContatoDTO.class);
@@ -76,8 +75,7 @@ public class ContatoService extends Servico {
 
     public boolean deletar(Integer idContato, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         this.contaService.validandoAcessoConta(numeroConta, senha);
-        //Validando se o cliente deve ter ao menos 1 contato
-        List<ContatoDTO> contatoDTOS = listarContatosDoCliente(retornarContato(idContato, numeroConta, senha).getIdCliente());
+        List<ContatoDTO> contatoDTOS = listarContatosDoCliente(numeroConta, senha);
         if(contatoDTOS.size() == 1){
             throw new RegraDeNegocioException("É necessário ter ao menos um contato!");
         }
@@ -91,7 +89,7 @@ public class ContatoService extends Servico {
     }
 
     private void validarNumeroContato(ContatoCreateDTO contatoCreateDTO) throws BancoDeDadosException, RegraDeNegocioException {
-        if(listarContatosDoCliente(contatoCreateDTO.getIdCliente()).stream()
+        if(contatoRepository.listarContatosPorPessoa(contatoCreateDTO.getIdCliente()).stream()
                 .anyMatch(contatoDTO -> contatoDTO.getTelefone().equals(contatoCreateDTO.getTelefone()))){
             throw new RegraDeNegocioException("Este número de telefone já existe!");
         }

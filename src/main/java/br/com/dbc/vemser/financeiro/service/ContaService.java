@@ -125,8 +125,8 @@ public class ContaService extends Servico {
     }
 
     public void removerConta(Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
-        //Validando e recuperando conta
-        ContaDTO contaAserRemovida = objectMapper.convertValue(contaRepository.consultarNumeroConta(numeroConta), ContaDTO.class);
+        Conta conta = contaRepository.consultarNumeroConta(numeroConta);
+        ContaDTO contaAserRemovida = objectMapper.convertValue(conta, ContaDTO.class);
 
         if(Objects.isNull(contaAserRemovida)){
             throw new RegraDeNegocioException("Esta conta não existe!");
@@ -137,7 +137,7 @@ public class ContaService extends Servico {
         }
 
         //Email
-        emailService.sendEmailDelete(contaAserRemovida);
+        emailService.sendEmailDelete(conta);
 
         //Deletando cartoes
         cartaoService.deletarTodosCartoes(numeroConta);

@@ -6,6 +6,8 @@ import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.service.ContatoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,19 +22,22 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
-public class ContatoController implements ControleAdicionar<ContatoCreateDTO, ContatoDTO>, ControleListar<List<ContatoDTO>>, ControleListarPorID<ContatoDTO>, ControleDeletar, ControleAtualizar<ContatoCreateDTO, ContatoDTO>{
+public class ContatoController implements ControleAdicionar<ContatoCreateDTO, ContatoDTO>, ControleListar<List<ContatoDTO>>, ControleDeletar, ControleAtualizar<ContatoCreateDTO, ContatoDTO>{
 
     private final ContatoService contatoService;
 
-    @GetMapping("/{idCliente}/cliente")
-    public ResponseEntity<List<ContatoDTO>> listarContatosDoCliente(
-            @PathVariable("idCliente") Integer idCliente) throws BancoDeDadosException, RegraDeNegocioException {
-        return new ResponseEntity<>(contatoService.listarContatosDoCliente(idCliente), HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<ContatoDTO> listarPorId(Integer id, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        return ResponseEntity.ok(contatoService.retornarContato(id, numeroConta, senha));
+    @Operation(summary = "Retorna os contatos do cliente", description = "Retorna os contatos do cliente do Banco de Dados")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Contatos retornados"),
+                    @ApiResponse(responseCode = "403", description = "Você não tem permissão para acessar este recurso"),
+                    @ApiResponse(responseCode = "500", description = "Foi gerada uma exceção")
+            }
+    )
+    @GetMapping("/cliente")
+    public ResponseEntity<List<ContatoDTO>> listarContatosDoCliente(@RequestHeader("numeroConta") Integer numeroConta,
+                                                                    @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        return new ResponseEntity<>(contatoService.listarContatosDoCliente(numeroConta, senha), HttpStatus.OK);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class EmailService {
 
     public void sendEmailCreate(Conta conta, CartaoDTO cartaoDTO) throws RegraDeNegocioException, BancoDeDadosException {
         MimeMessage mimeMessage = emailSender.createMimeMessage();
-        ContatoDTO contato = getContato(conta.getCliente().getIdCliente());
+        ContatoDTO contato = contatoService.listarContatosDoCliente(conta.getNumeroConta(), conta.getSenha()).stream().findFirst().orElseThrow();
 
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -69,9 +69,9 @@ public class EmailService {
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, dados);
     }
 
-    public void sendEmailDelete(ContaDTO contaDTO) throws RegraDeNegocioException, BancoDeDadosException {
+    public void sendEmailDelete(Conta conta) throws RegraDeNegocioException, BancoDeDadosException {
         MimeMessage mimeMessage = emailSender.createMimeMessage();
-        ContatoDTO contato = getContato(contaDTO.getCliente().getIdCliente());
+        ContatoDTO contato = contatoService.listarContatosDoCliente(conta.getNumeroConta(), conta.getSenha()).stream().findFirst().orElseThrow();
 
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -95,10 +95,5 @@ public class EmailService {
 
         Template template = fmConfiguration.getTemplate("contadelete.ftl");
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, dados);
-    }
-
-
-    private ContatoDTO getContato(Integer idCliente) throws RegraDeNegocioException, BancoDeDadosException {
-        return contatoService.listarContatosDoCliente(idCliente).stream().findFirst().orElseThrow();
     }
 }
