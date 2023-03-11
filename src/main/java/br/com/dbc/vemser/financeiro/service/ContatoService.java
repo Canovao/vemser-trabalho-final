@@ -1,9 +1,11 @@
 package br.com.dbc.vemser.financeiro.service;
 
+import br.com.dbc.vemser.financeiro.dto.ClienteDTO;
 import br.com.dbc.vemser.financeiro.dto.ContatoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.ContatoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
+import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Contato;
 import br.com.dbc.vemser.financeiro.repository.ContatoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,19 +60,28 @@ public class ContatoService extends Servico {
     }
 
     public ContatoDTO adicionar(ContatoCreateDTO contatoCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        contaService.validandoAcessoConta(numeroConta, senha);
-        clienteService.visualizarCliente(contatoCreateDTO.getIdCliente());
+        ClienteDTO cliente = contaService.validandoAcessoConta(numeroConta, senha).getCliente();
+
+        clienteService.visualizarCliente(cliente.getIdCliente());
+
+        contatoCreateDTO.setIdCliente(cliente.getIdCliente());
         validarNumeroContato(contatoCreateDTO);
+
         Contato contato = objectMapper.convertValue(contatoCreateDTO, Contato.class);
-        return objectMapper.convertValue(this.contatoRepository.adicionar(contato), ContatoDTO.class);
+        return objectMapper.convertValue(contatoRepository.adicionar(contato), ContatoDTO.class);
     }
 
     public ContatoDTO atualizar(Integer idContato, ContatoCreateDTO contatoCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        contaService.validandoAcessoConta(numeroConta, senha);
+        ClienteDTO cliente = contaService.validandoAcessoConta(numeroConta, senha).getCliente();
+
+        clienteService.visualizarCliente(cliente.getIdCliente());
+
+        contatoCreateDTO.setIdCliente(cliente.getIdCliente());
         validarContato(idContato);
         validarNumeroContato(contatoCreateDTO);
+
         Contato contato = objectMapper.convertValue(contatoCreateDTO, Contato.class);
-        return objectMapper.convertValue(this.contatoRepository.editar(idContato, contato), ContatoDTO.class);
+        return objectMapper.convertValue(contatoRepository.editar(idContato, contato), ContatoDTO.class);
     }
 
     public boolean deletar(Integer idContato, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
