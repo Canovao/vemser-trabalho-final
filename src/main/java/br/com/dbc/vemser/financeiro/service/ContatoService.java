@@ -5,7 +5,6 @@ import br.com.dbc.vemser.financeiro.dto.ContatoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.ContatoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Contato;
 import br.com.dbc.vemser.financeiro.repository.ContatoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

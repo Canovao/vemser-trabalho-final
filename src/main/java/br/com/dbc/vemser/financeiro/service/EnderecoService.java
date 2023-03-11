@@ -49,30 +49,27 @@ public class EnderecoService extends Servico {
                 .collect(Collectors.toList());
     }
 
-    public EnderecoDTO retornarEndereco(Integer idEndereco, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        contaService.validandoAcessoConta(numeroConta, senha);
-        validarEndereco(idEndereco);
-        if(Objects.equals(this.enderecoRepository.retornarEndereco(idEndereco).getIdCliente(), contaService.retornarContaCliente(numeroConta, senha).getCliente().getIdCliente())){
-            return objectMapper.convertValue(this.enderecoRepository.retornarEndereco(idEndereco), EnderecoDTO.class);
-        }else{
-            throw new RegraDeNegocioException("Esse endereço não te pertence!");
-        }
-    }
-
     public EnderecoDTO adicionar(EnderecoCreateDTO enderecoCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        this.contaService.validandoAcessoConta(numeroConta, senha);
-        //Validando cliente
-        clienteService.visualizarCliente(enderecoCreateDTO.getIdCliente());
-        //Validando se o cliente já possui aquele cep registrado no banco de dados.
+        ClienteDTO cliente = contaService.validandoAcessoConta(numeroConta, senha).getCliente();
+
+        clienteService.visualizarCliente(cliente.getIdCliente());
+
+        enderecoCreateDTO.setIdCliente(cliente.getIdCliente());
         validarCEPEndereco(enderecoCreateDTO);
+
         Endereco endereco = objectMapper.convertValue(enderecoCreateDTO, Endereco.class);
-        return objectMapper.convertValue(this.enderecoRepository.adicionar(endereco), EnderecoDTO.class);
+        return objectMapper.convertValue(enderecoRepository.adicionar(endereco), EnderecoDTO.class);
     }
 
     public EnderecoDTO atualizar(Integer idEndereco, EnderecoCreateDTO enderecoCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        contaService.validandoAcessoConta(numeroConta, senha);
+        ClienteDTO cliente = contaService.validandoAcessoConta(numeroConta, senha).getCliente();
+
+        clienteService.visualizarCliente(cliente.getIdCliente());
+
+        enderecoCreateDTO.setIdCliente(cliente.getIdCliente());
         validarEndereco(idEndereco);
         validarCEPEndereco(enderecoCreateDTO);
+
         Endereco endereco = objectMapper.convertValue(enderecoCreateDTO, Endereco.class);
         return objectMapper.convertValue(enderecoRepository.editar(idEndereco, endereco), EnderecoDTO.class);
     }
@@ -95,8 +92,8 @@ public class EnderecoService extends Servico {
     private void validarCEPEndereco(EnderecoCreateDTO enderecoCreateDTO) throws BancoDeDadosException, RegraDeNegocioException {
         if(enderecoRepository.listar().stream()
                 .filter(enderecoDTO -> enderecoDTO.getIdCliente().equals(enderecoCreateDTO.getIdCliente()))
-                .anyMatch(enderecoDTO -> enderecoDTO.getCep().equals(enderecoCreateDTO.getCep()))){
-            throw new RegraDeNegocioException("Este CEP já existe!");
+                .anyMatch(enderecoDTO -> enderecoDTO.getCep().equals(enderecoCreateDTO.getCep()) && enderecoDTO.getNumero().equals(enderecoCreateDTO.getNumero()))){
+            throw new RegraDeNegocioException("Este Endereço já existe!");
         }
     }
 }

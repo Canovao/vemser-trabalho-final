@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 @NoArgsConstructor
@@ -36,4 +37,11 @@ public class EnderecoCreateDTO {
     @Size(min=8, max=8, message = "CEP inválido!")
     @Schema(example = "35845765")
     private String cep;
+    @Size(max=250, message = "Complemento longo demais! Tamanho máximo 250 caracteres!")
+    @Schema(example = "complemento")
+    private String complemento;
+    @NotNull(message = "Número não pode ser nulo")
+    @Positive(message = "Número inválido, necessita ser positivo!")
+    @Schema(example = "100")
+    private Integer numero;
 }
