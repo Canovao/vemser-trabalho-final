@@ -32,11 +32,18 @@ public class CompraController implements ControleListar<List<CompraDTO>>, Contro
 
     @Override
     @GetMapping("/listar")
-    public ResponseEntity<List<CompraDTO>> listar(@RequestHeader("login") String login,
-                                                  @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public ResponseEntity<List<CompraDTO>> listar(String login,String senha) throws BancoDeDadosException, RegraDeNegocioException {
         return ResponseEntity.ok(compraService.list(login, senha));
     }
 
+    @Operation(summary = "Retorna uma compra pelo id", description = "Retorna uma compra do banco de dados pelo seu id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Compra retornada"),
+                    @ApiResponse(responseCode = "403", description = "Você não tem permissão para acessar este recurso"),
+                    @ApiResponse(responseCode = "500", description = "Foi gerada uma exceção")
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<CompraItensDTO> getById(@RequestHeader("login") String login,
                                                   @RequestHeader("senha") String senha,
