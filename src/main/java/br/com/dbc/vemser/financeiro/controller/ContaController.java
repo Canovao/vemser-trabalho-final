@@ -83,16 +83,18 @@ public class ContaController implements ControleListar<List<ContaDTO>>{
         return ResponseEntity.ok(contaDTO);
     }
 
-    @Operation(summary = "Reativar conta", description = "Reativar conta, cliente e cartões.")
+    @Operation(summary = "FUNÇÃO ADM", description = "Reativar conta, cliente e cartões.")
     @PutMapping("/{cpf}/reativar")
-    public ResponseEntity<Boolean> reativarConta(@PathVariable("cpf") String cpf) throws BancoDeDadosException, RegraDeNegocioException {
+    public ResponseEntity<Boolean> reativarConta(@PathVariable("cpf") String cpf,
+                                                 @RequestHeader("login") String login,
+                                                 @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
         log.info("Reativando Conta!");
-        boolean simOrNao = contaService.reativarConta(cpf);
+        boolean simOrNao = contaService.reativarConta(cpf,login,senha);
         log.info("Conta Reativada!");
         return ResponseEntity.ok(simOrNao);
     }
 
-    @Operation(summary = "Desativar conta", description = "Desativar conta, cliente e cartões.")
+    @Operation(summary = "FUNÇÃO ADM", description = "Desativar conta, cliente e cartões.")
     @DeleteMapping("/delete/{numeroConta}")
     public ResponseEntity<String> removerConta(
                                 @PathVariable("numeroConta") Integer numeroConta,

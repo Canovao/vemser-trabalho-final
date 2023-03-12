@@ -113,7 +113,8 @@ public class ContaService extends Servico {
         return objectMapper.convertValue(contaRepository.editar(conta.getNumeroConta(), conta), ContaDTO.class);
     }
 
-    public boolean reativarConta(String cpf) throws BancoDeDadosException, RegraDeNegocioException {
+    public boolean reativarConta(String cpf, String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        if (AdminValidation.validar(login, senha)) {
         Conta contaReativar = contaRepository.listar().stream()
                 .filter(conta -> conta.getCliente().getCpf().equals(cpf))
                 .findFirst()
@@ -123,6 +124,9 @@ public class ContaService extends Servico {
             throw new RegraDeNegocioException("Este CPF já está ativo!");
         }
         return contaRepository.reativarConta(cpf);
+    } else {
+        throw new RegraDeNegocioException("Credenciais inválidas!");
+    }
     }
 
     public void removerConta(Integer numeroConta, String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
