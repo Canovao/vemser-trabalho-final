@@ -67,7 +67,7 @@ public class ItemService extends Servico {
             throw new RegraDeNegocioException("Id da compra não existe!");
         }else{
             boolean exibir = false;
-            for(CartaoDTO cartao : cartaoService.listarPorNumeroConta(numeroConta)){
+            for(CartaoDTO cartao : cartaoService.listarPorNumeroConta(numeroConta, senha)){
                 for(CompraItensDTO compra: compraService.retornarComprasCartao(cartao.getNumeroCartao(), numeroConta, senha)){
                     if(compra.getIdCompra().equals(idCompra)){
                         exibir = true;

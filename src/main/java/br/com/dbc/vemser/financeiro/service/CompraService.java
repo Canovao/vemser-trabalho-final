@@ -54,7 +54,7 @@ public class CompraService extends Servico {
     public List<CompraItensDTO> retornarComprasCartao(Long numeroCartao, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
 
-        List<CartaoDTO> cartoes = cartaoService.listarPorNumeroConta(numeroConta).stream()
+        List<CartaoDTO> cartoes = cartaoService.listarPorNumeroConta(numeroConta, senha).stream()
                 .filter(cartaoDTO -> cartaoDTO.getNumeroCartao().equals(numeroCartao))
                 .toList();
         if(cartoes.size() == 0){

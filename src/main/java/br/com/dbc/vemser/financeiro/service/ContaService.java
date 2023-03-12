@@ -125,30 +125,35 @@ public class ContaService extends Servico {
         return contaRepository.reativarConta(cpf);
     }
 
-    public void removerConta(Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
-        Conta conta = contaRepository.consultarNumeroConta(numeroConta);
-        ContaDTO contaAserRemovida = objectMapper.convertValue(conta, ContaDTO.class);
+    public void removerConta(Integer numeroConta, String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        if (AdminValidation.validar(login, senha)) {
+            Conta conta = contaRepository.consultarNumeroConta(numeroConta);
+            ContaDTO contaAserRemovida = objectMapper.convertValue(conta, ContaDTO.class);
 
-        if(Objects.isNull(contaAserRemovida)){
-            throw new RegraDeNegocioException("Esta conta não existe!");
+            if(Objects.isNull(contaAserRemovida)){
+                throw new RegraDeNegocioException("Esta conta não existe!");
+            }
+
+            if(contaAserRemovida.getStatus().equals(Status.INATIVO)){
+                throw new RegraDeNegocioException("Não foi possível remover a conta! A conta já está inativa.");
+            }
+
+            //Email
+            emailService.sendEmailDelete(conta);
+
+            //Deletando cartoes
+            cartaoService.deletarTodosCartoes(numeroConta);
+
+            //Deletando conta
+            contaRepository.remover(numeroConta);
+
+            //Deletando cliente
+            clienteService.deletarCliente(contaAserRemovida.getCliente().getIdCliente());
+        } else {
+            throw new RegraDeNegocioException("Credenciais inválidas!");
         }
-
-        if(contaAserRemovida.getStatus().equals(Status.INATIVO)){
-            throw new RegraDeNegocioException("Não foi possível remover a conta! A conta já está inativa.");
-        }
-
-        //Email
-        emailService.sendEmailDelete(conta);
-
-        //Deletando cartoes
-        cartaoService.deletarTodosCartoes(numeroConta);
-
-        //Deletando conta
-        contaRepository.remover(numeroConta);
-
-        //Deletando cliente
-        clienteService.deletarCliente(contaAserRemovida.getCliente().getIdCliente());
     }
+
 
     private Conta criandoDados(ContaCreateDTO contaCreateDTO, ClienteDTO clienteDTO){
         Random random = new Random();
@@ -167,7 +172,7 @@ public class ContaService extends Servico {
         return conta;
     }
 
-    ContaDTO validandoAcessoConta(Integer numeroConta, String senha) throws RegraDeNegocioException, BancoDeDadosException {
+    public ContaDTO validandoAcessoConta(Integer numeroConta, String senha) throws RegraDeNegocioException, BancoDeDadosException {
         Conta conta = contaRepository.consultarNumeroConta(numeroConta);
 
         if(Objects.isNull(conta)){

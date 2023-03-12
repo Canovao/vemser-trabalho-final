@@ -93,11 +93,13 @@ public class ContaController implements ControleListar<List<ContaDTO>>{
     }
 
     @Operation(summary = "Desativar conta", description = "Desativar conta, cliente e cartões.")
-    @DeleteMapping("/{numeroConta}/delete")
+    @DeleteMapping("/delete/{numeroConta}")
     public ResponseEntity<String> removerConta(
-                                @PathVariable("numeroConta") Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
+                                @PathVariable("numeroConta") Integer numeroConta,
+                                @RequestHeader("login") String login,
+                                @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
         log.info("Deletando Conta!");
-        contaService.removerConta(numeroConta);
+        contaService.removerConta(numeroConta, login, senha);
         log.info("Conta Deletada!");
         return ResponseEntity.ok("Conta desativada!");
     }

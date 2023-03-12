@@ -25,13 +25,14 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @Tag(name = "Cartão")
-public class CartaoController {
+public class CartaoController implements ControleListar<List<CartaoDTO>> {
 
     private final CartaoService cartaoService;
 
-    @GetMapping("/{numeroConta}")
-    public ResponseEntity<List<CartaoDTO>> listarPorIdConta(@PathVariable("numeroConta") Integer numeroConta) throws BancoDeDadosException {
-        return new ResponseEntity<>(cartaoService.listarPorNumeroConta(numeroConta), HttpStatus.OK);
+    @GetMapping("/listar")
+    public ResponseEntity<List<CartaoDTO>> listarPorNumeroConta(@RequestHeader("numeroConta") Integer numeroConta,
+                                                       @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        return new ResponseEntity<>(cartaoService.listarPorNumeroConta(numeroConta, senha), HttpStatus.OK);
     }
 
     @PostMapping("/criar/{tipo}")
@@ -66,5 +67,10 @@ public class CartaoController {
                                         @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
         cartaoService.deletar(numeroCartao, numeroConta, senha);
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<List<CartaoDTO>> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        return new ResponseEntity<>(cartaoService.listar(login, senha), HttpStatus.OK);
     }
 }
