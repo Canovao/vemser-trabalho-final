@@ -24,3 +24,4 @@ O sistema exige que apenas um administrador cadastre ou exclua uma conta, após,
 1. Fluxograma da API: [Fluxograma da API](https://lucid.app/lucidchart/a82dee08-c4c8-4a4a-9d18-d4f6937c4830/edit?viewport_loc=-237%2C613%2C4364%2C2243%2C0_0&invitationId=inv_eaf31799-6a65-4c16-b4b6-7b361476e8a3)
 2. Diagrama ER (Entidade Relacionamento): [Diagrama ER](https://lucid.app/lucidchart/3b89c914-2b90-4162-8adf-1196b90de0ee/edit?viewport_loc=-157%2C-95%2C2397%2C1232%2CZvKdXZheBP8n&invitationId=inv_ab1a5a66-b987-4e9b-a49a-1135ae3dcb16)
 3. Diagrama de classes: [Diagrama de Classes do projeto](https://lucid.app/lucidchart/17d33946-0d38-4544-8578-e02af91a9943/edit?viewport_loc=-529%2C-147%2C2665%2C1369%2CHWEp-vi-RSFO&invitationId=inv_0c6d8cd4-f4ac-44ed-8890-a31e96c56b54)
+4. Postman: [Postman](https://www.postman.com/crimson-shuttle-418480/workspace/java-tipagem-dinamica)
