@@ -49,16 +49,6 @@ public class ContatoService extends Servico {
                 .toList();
     }
 
-    public ContatoDTO retornarContato(Integer idContato, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        contaService.validandoAcessoConta(numeroConta, senha);
-        validarContato(idContato);
-        if(Objects.equals(contatoRepository.retornarContato(idContato).getIdCliente(), contaService.retornarContaCliente(numeroConta, senha).getCliente().getIdCliente())){
-            return objectMapper.convertValue(contatoRepository.retornarContato(idContato), ContatoDTO.class);
-        }else{
-            throw new RegraDeNegocioException("Esse contato não te pertence!");
-        }
-    }
-
     public ContatoDTO adicionar(ContatoCreateDTO contatoCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         ClienteDTO cliente = contaService.validandoAcessoConta(numeroConta, senha).getCliente();
 
