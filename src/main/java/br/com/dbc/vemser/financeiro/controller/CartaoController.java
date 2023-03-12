@@ -53,13 +53,18 @@ public class CartaoController {
     }
 
     @PutMapping("/{numeroCartao}")
-    public ResponseEntity<CartaoDTO> atualizar(@PathVariable("numeroCartao") Long numeroCartao, @RequestBody CartaoCreateDTO cartaoCreateDTO) throws RegraDeNegocioException, BancoDeDadosException {
-        return new ResponseEntity<>(cartaoService.atualizar(numeroCartao, cartaoCreateDTO), HttpStatus.OK);
+    public ResponseEntity<CartaoDTO> atualizar(@PathVariable("numeroCartao") Long numeroCartao,
+                                               @RequestHeader("numeroConta") Integer numeroConta,
+                                               @RequestHeader("senha") String senha,
+                                               @RequestBody CartaoCreateDTO cartaoCreateDTO) throws RegraDeNegocioException, BancoDeDadosException {
+        return new ResponseEntity<>(cartaoService.atualizar(numeroCartao, cartaoCreateDTO, numeroConta, senha), HttpStatus.OK);
     }
 
     @DeleteMapping("/{numeroCartao}")
-    public ResponseEntity<Void> deletar(@NotNull @PathVariable("numeroCartao") Long numeroCartao) throws BancoDeDadosException, RegraDeNegocioException {
-        cartaoService.deletar(numeroCartao);
+    public ResponseEntity<Void> deletar(@NotNull @PathVariable("numeroCartao") Long numeroCartao,
+                                        @RequestHeader("numeroConta") Integer numeroConta,
+                                        @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        cartaoService.deletar(numeroCartao, numeroConta, senha);
         return ResponseEntity.ok().build();
     }
 }

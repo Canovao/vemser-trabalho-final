@@ -13,5 +13,4 @@ public class CartaoCreateDTO {
     private TipoCartao tipo;
     private LocalDate vencimento;
     private Status status = Status.ATIVO;
-
 }

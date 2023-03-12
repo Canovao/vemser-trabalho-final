@@ -96,7 +96,8 @@ public class CartaoService extends Servico {
         return null;
     }
 
-    public CartaoDTO atualizar(Long numeroCartao, CartaoCreateDTO cartaoCreateDTO) throws RegraDeNegocioException, BancoDeDadosException {
+    public CartaoDTO atualizar(Long numeroCartao, CartaoCreateDTO cartaoCreateDTO, Integer numeroConta, String senha) throws RegraDeNegocioException, BancoDeDadosException {
+        contaService.validandoAcessoConta(numeroConta, senha);
         Cartao cartao = cartaoRepository.getPorNumeroCartao(numeroCartao);
         Cartao cartaoEditado;
         if(cartao.getTipo().equals(TipoCartao.DEBITO)) {
@@ -107,7 +108,8 @@ public class CartaoService extends Servico {
         return objectMapper.convertValue(cartaoEditado, CartaoDTO.class);
     }
 
-    public void deletar(Long numeroCartao) throws BancoDeDadosException, RegraDeNegocioException {
+    public void deletar(Long numeroCartao, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        contaService.validandoAcessoConta(numeroConta, senha);
         log.info("Buscando cartão...");
         Cartao cartao = cartaoRepository.getPorNumeroCartao(numeroCartao);
         List<Cartao> cartoes = cartaoRepository.listarPorNumeroConta(cartao.getNumeroConta());
