@@ -38,7 +38,7 @@ public class ClienteService extends Servico {
         return clienteDTO;
     }
 
-    protected ClienteDTO retornandoCliente(Integer idCliente) throws BancoDeDadosException {
+    ClienteDTO retornandoCliente(Integer idCliente) throws BancoDeDadosException {
         return objectMapper.convertValue(clienteRepository.consultarPorIdCliente(idCliente), ClienteDTO.class);
     }
 
