@@ -7,6 +7,7 @@ import br.com.dbc.vemser.financeiro.service.TransferenciaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Transferência")
 public class TransferenciaController implements ControleListar<List<TransferenciaDTO>>,
         ControleAdicionar<TransferenciaCreateDTO, TransferenciaDTO>,
         ControleListarPorID<TransferenciaDTO>{

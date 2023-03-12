@@ -105,6 +105,38 @@ public class CompraRepository implements Repositorio<Compra> {
         }
     }
 
+    public Compra getById(Integer id) throws BancoDeDadosException {
+        Connection con = null;
+        try {
+            con = ConexaoBancoDeDados.getConnection();
+
+            String sql = "SELECT id_compra, numero_cartao, doc_vendedor, data FROM compra WHERE id_compra = ?";
+
+            // Executa-se a consulta
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setLong(1, id);
+
+            ResultSet res = stmt.executeQuery();
+
+            if (res.next()) {
+                return getCompraFromResultSet(res);
+            }
+            return null;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new BancoDeDadosException(e.getCause());
+        } finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public List<Compra> listarPorCartao(Long numeroCartao) throws BancoDeDadosException {
         List<Compra> compras = new ArrayList<>();
         Connection con = null;
@@ -143,6 +175,8 @@ public class CompraRepository implements Repositorio<Compra> {
             }
         }
     }
+
+
 
     private Compra getCompraFromResultSet(ResultSet res) throws SQLException {
         Compra compra = new Compra();
