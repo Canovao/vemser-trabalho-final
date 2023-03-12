@@ -13,14 +13,8 @@ import javax.validation.constraints.Positive;
 @AllArgsConstructor
 @Data
 public class CartaoPagarDTO {
-
     @NotNull(message = "Informe o número do cartão!")
     private Long numeroCartao;
-    @NotNull(message = "Informe um valor!")
-    @Positive(message = "Valor inválido! > 0")
-    private Double valor;
-    @NotNull(message = "Tipo inválido!")
-    private TipoCartao tipoCartao;
     @NotNull(message = "Código inválido")
     private Integer codigoSeguranca;
 }

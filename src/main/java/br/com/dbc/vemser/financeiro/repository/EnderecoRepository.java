@@ -39,8 +39,8 @@ public class EnderecoRepository implements Repositorio<Endereco> {
 
             String sql = """
                     INSERT INTO endereco
-                    (id_endereco, id_cliente, cidade, logradouro, estado, pais, cep)
-                    VALUES(?,?,?,?,?,?,?)
+                    (id_endereco, id_cliente, cidade, logradouro, estado, pais, cep, numero, complemento)
+                    VALUES(?,?,?,?,?,?,?,?,?)
                     """;
 
             PreparedStatement stmt = con.prepareStatement(sql);
@@ -52,12 +52,15 @@ public class EnderecoRepository implements Repositorio<Endereco> {
             stmt.setString(5, endereco.getEstado());
             stmt.setString(6, endereco.getPais());
             stmt.setString(7, endereco.getCep());
+            stmt.setInt(8, endereco.getNumero());
+            stmt.setString(9, endereco.getComplemento());
 
             // Executar consulta
             stmt.executeUpdate();
             return endereco;
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new BancoDeDadosException(e.getCause());
         } finally {
             try {
@@ -126,6 +129,14 @@ public class EnderecoRepository implements Repositorio<Endereco> {
                 sql.append(" cep = ?,");
             }
 
+            if (endereco.getComplemento() != null) {
+                sql.append(" complemento = ?,");
+            }
+
+            if (endereco.getNumero() != null) {
+                sql.append(" numero = ?,");
+            }
+
             sql.deleteCharAt(sql.length() - 1); //remove o ultimo ','
             sql.append("WHERE ID_ENDERECO = ? ");
 
@@ -152,12 +163,20 @@ public class EnderecoRepository implements Repositorio<Endereco> {
                 stmt.setString(index++, endereco.getCep());
             }
 
+            if (endereco.getComplemento() != null) {
+                stmt.setString(index++, endereco.getComplemento());
+            }
+
+            if (endereco.getNumero() != null) {
+                stmt.setInt(index++, endereco.getNumero());
+            }
+
             stmt.setInt(index, id);
 
             // Executar consulta
             stmt.executeUpdate();
 
-            return retornarEndereco(id);
+            return endereco;
         } catch (SQLException e) {
             throw new BancoDeDadosException(e.getCause());
         } finally {
@@ -241,41 +260,6 @@ public class EnderecoRepository implements Repositorio<Endereco> {
         }
     }
 
-    public Endereco retornarEndereco(Integer idEndereco) throws BancoDeDadosException {
-        Connection con = null;
-        try {
-            con = ConexaoBancoDeDados.getConnection();
-            Endereco endereco = new Endereco();
-
-            String sql = """
-                        SELECT e.*  FROM ENDERECO e
-                        WHERE e.id_endereco = ?
-                    """;
-
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setInt(1, idEndereco);
-
-            ResultSet res = stmt.executeQuery();
-
-            while (res.next()) {
-                endereco = getEnderecoFromResultSet(res);
-            }
-
-            return endereco;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new BancoDeDadosException(e.getCause());
-        } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private Endereco getEnderecoFromResultSet(ResultSet res) throws SQLException {
         Endereco endereco = new Endereco();
         endereco.setIdEndereco(res.getInt("id_endereco"));
@@ -285,6 +269,8 @@ public class EnderecoRepository implements Repositorio<Endereco> {
         endereco.setEstado(res.getString("estado"));
         endereco.setPais(res.getString("pais"));
         endereco.setLogradouro(res.getString("logradouro"));
+        endereco.setComplemento(res.getString("complemento"));
+        endereco.setNumero(res.getInt("numero"));
         return endereco;
     }
 }

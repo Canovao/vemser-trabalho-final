@@ -1,12 +1,12 @@
 package br.com.dbc.vemser.financeiro.service;
 
-import br.com.dbc.vemser.financeiro.dto.*;
+import br.com.dbc.vemser.financeiro.dto.CartaoDTO;
+import br.com.dbc.vemser.financeiro.dto.ClienteDTO;
+import br.com.dbc.vemser.financeiro.dto.ContaDTO;
+import br.com.dbc.vemser.financeiro.dto.ContatoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Cartao;
-import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Conta;
-import br.com.dbc.vemser.financeiro.model.Contato;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -20,9 +20,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -33,13 +31,13 @@ public class EmailService {
     private final Configuration fmConfiguration;
     private final ContatoService contatoService;
     private final ClienteService clienteService;
-    private final CartaoService cartaoService;
+
     @Value("${spring.mail.username}")
     private String from;
 
     public void sendEmailCreate(Conta conta, CartaoDTO cartaoDTO) throws RegraDeNegocioException, BancoDeDadosException {
         MimeMessage mimeMessage = emailSender.createMimeMessage();
-        ContatoDTO contato = getContato(conta.getCliente().getIdCliente());
+        ContatoDTO contato = contatoService.listarContatosDoCliente(conta.getNumeroConta(), conta.getSenha()).stream().findFirst().orElseThrow();
 
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -54,7 +52,7 @@ public class EmailService {
         }
     }
 
-    public String getTemplateCreate(Conta conta, CartaoDTO cartaoDTO) throws IOException, TemplateException, BancoDeDadosException {
+    public String getTemplateCreate(Conta conta, CartaoDTO cartaoDTO) throws IOException, TemplateException {
         Map<String, Object> dados = new HashMap<>();
 
         dados.put("nome", conta.getCliente().getNome());
@@ -71,9 +69,9 @@ public class EmailService {
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, dados);
     }
 
-    public void sendEmailDelete(ContaDTO contaDTO) throws RegraDeNegocioException, BancoDeDadosException {
+    public void sendEmailDelete(Conta conta) throws RegraDeNegocioException, BancoDeDadosException {
         MimeMessage mimeMessage = emailSender.createMimeMessage();
-        ContatoDTO contato = getContato(contaDTO.getCliente().getIdCliente());
+        ContatoDTO contato = contatoService.listarContatosDoCliente(conta.getNumeroConta(), conta.getSenha()).stream().findFirst().orElseThrow();
 
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -97,17 +95,5 @@ public class EmailService {
 
         Template template = fmConfiguration.getTemplate("contadelete.ftl");
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, dados);
-    }
-
-
-    private ContatoDTO getContato(Integer idCliente) throws RegraDeNegocioException, BancoDeDadosException {
-        return contatoService.listarContatosDoCliente(idCliente).stream().findFirst().orElseThrow();
-    }
-
-    private Conta getConta(List<Object> object) {
-        return (Conta) object.stream()
-                .filter(o -> o instanceof Conta)
-                .findFirst()
-                .orElseThrow();
     }
 }

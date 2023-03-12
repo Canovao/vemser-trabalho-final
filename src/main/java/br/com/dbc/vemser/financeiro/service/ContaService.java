@@ -8,6 +8,7 @@ import br.com.dbc.vemser.financeiro.model.Conta;
 import br.com.dbc.vemser.financeiro.model.Status;
 import br.com.dbc.vemser.financeiro.model.TipoCartao;
 import br.com.dbc.vemser.financeiro.repository.ContaRepository;
+import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -37,10 +38,14 @@ public class ContaService extends Servico {
         this.emailService = emailService;
     }
 
-    public List<ContaDTO> listar() throws BancoDeDadosException {
-        return contaRepository.listar().stream()
-                .map(conta -> objectMapper.convertValue(conta, ContaDTO.class))
-                .toList();
+    public List<ContaDTO> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        if (AdminValidation.validar(login, senha)) {
+            return contaRepository.listar().stream()
+                    .map(conta -> objectMapper.convertValue(conta, ContaDTO.class))
+                    .toList();
+        } else {
+            throw new RegraDeNegocioException("Credenciais inválidas!");
+        }
     }
 
     public ContaDTO retornarContaCliente(Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException{
@@ -72,7 +77,6 @@ public class ContaService extends Servico {
     }
 
     public ContaDTO alterarSenha(String novaSenha, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-
         //Vericando acesso à conta que irá ser atualizada
         ContaDTO contaDTO = validandoAcessoConta(numeroConta, senha);
 
@@ -109,38 +113,51 @@ public class ContaService extends Servico {
         return objectMapper.convertValue(contaRepository.editar(conta.getNumeroConta(), conta), ContaDTO.class);
     }
 
-    public void reativarConta(String cpf) throws BancoDeDadosException, RegraDeNegocioException {
-        ClienteCreateDTO clienteCreateDTO = new ClienteCreateDTO();
-        clienteCreateDTO.setCpf(cpf);
-        clienteService.validarClientePorCPF(clienteCreateDTO);
+    public boolean reativarConta(String cpf, String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        if (AdminValidation.validar(login, senha)) {
+        Conta contaReativar = contaRepository.listar().stream()
+                .filter(conta -> conta.getCliente().getCpf().equals(cpf))
+                .findFirst()
+                .orElseThrow(() -> new RegraDeNegocioException("Este CPF não possui registros!"));
 
-        contaRepository.reativarConta(cpf);
+        if(contaReativar.getStatus().getStatus() == 1){
+            throw new RegraDeNegocioException("Este CPF já está ativo!");
+        }
+        return contaRepository.reativarConta(cpf);
+    } else {
+        throw new RegraDeNegocioException("Credenciais inválidas!");
+    }
     }
 
-    public void removerConta(Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
-        //Validando e recuperando conta
-        ContaDTO contaDTO = objectMapper.convertValue(contaRepository.consultarNumeroConta(numeroConta), ContaDTO.class);
+    public void removerConta(Integer numeroConta, String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        if (AdminValidation.validar(login, senha)) {
+            Conta conta = contaRepository.consultarNumeroConta(numeroConta);
+            ContaDTO contaAserRemovida = objectMapper.convertValue(conta, ContaDTO.class);
 
-        if(Objects.isNull(contaDTO)){
-            throw new RegraDeNegocioException("Esta conta não existe!");
+            if(Objects.isNull(contaAserRemovida)){
+                throw new RegraDeNegocioException("Esta conta não existe!");
+            }
+
+            if(contaAserRemovida.getStatus().equals(Status.INATIVO)){
+                throw new RegraDeNegocioException("Não foi possível remover a conta! A conta já está inativa.");
+            }
+
+            //Email
+            emailService.sendEmailDelete(conta);
+
+            //Deletando cartoes
+            cartaoService.deletarTodosCartoes(numeroConta);
+
+            //Deletando conta
+            contaRepository.remover(numeroConta);
+
+            //Deletando cliente
+            clienteService.deletarCliente(contaAserRemovida.getCliente().getIdCliente());
+        } else {
+            throw new RegraDeNegocioException("Credenciais inválidas!");
         }
-
-        if(contaDTO.getStatus().equals(Status.INATIVO)){
-            throw new RegraDeNegocioException("Não foi possível remover a conta! A conta já está inativa.");
-        }
-
-        //Email
-        emailService.sendEmailDelete(contaDTO);
-
-        //Deletando cartoes
-        cartaoService.deletarTodosCartoes(numeroConta);
-
-        //Deletando conta
-        contaRepository.remover(numeroConta);
-
-        //Deletando cliente
-        clienteService.deletarCliente(contaDTO.getCliente().getIdCliente());
     }
+
 
     private Conta criandoDados(ContaCreateDTO contaCreateDTO, ClienteDTO clienteDTO){
         Random random = new Random();
@@ -159,8 +176,7 @@ public class ContaService extends Servico {
         return conta;
     }
 
-    ContaDTO validandoAcessoConta(Integer numeroConta, String senha) throws RegraDeNegocioException, BancoDeDadosException {
-
+    public ContaDTO validandoAcessoConta(Integer numeroConta, String senha) throws RegraDeNegocioException, BancoDeDadosException {
         Conta conta = contaRepository.consultarNumeroConta(numeroConta);
 
         if(Objects.isNull(conta)){

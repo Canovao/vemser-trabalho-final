@@ -7,6 +7,7 @@ import br.com.dbc.vemser.financeiro.service.TransferenciaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,8 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
-public class TransferenciaController implements ControleListar<List<TransferenciaDTO>>,
-        ControleAdicionar<TransferenciaCreateDTO, TransferenciaDTO>,
-        ControleListarPorID<TransferenciaDTO>{
+@Tag(name = "Transferência")
+public class TransferenciaController implements ControleListar<List<TransferenciaDTO>>, ControleAdicionar<TransferenciaCreateDTO, TransferenciaDTO>, ControleListarPorID<TransferenciaDTO>{
 
     private final TransferenciaService transferenciaService;
 
@@ -40,8 +40,9 @@ public class TransferenciaController implements ControleListar<List<Transferenci
         return ResponseEntity.ok(transferenciaService.listarTransferenciasDaConta(numeroConta, senha));
     }
 
-    //função do ADM
     @Override
+    @GetMapping("/lista")
+    @Operation(summary = "FUNÇÃO ADM", description = "LISTAR TODAS AS TRANSFERÊNCIAS DO BANCO")
     public ResponseEntity<List<TransferenciaDTO>> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         return ResponseEntity.ok(transferenciaService.listarTransferencias(login, senha));
     }

@@ -7,6 +7,7 @@ import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Status;
 import br.com.dbc.vemser.financeiro.repository.ClienteRepository;
+import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +22,14 @@ public class ClienteService extends Servico {
         this.clienteRepository = clienteRepository;
     }
 
-    public List<ClienteDTO> listarClientes() throws BancoDeDadosException {
-        return clienteRepository.listar().stream()
-                .map(cliente -> objectMapper.convertValue(cliente, ClienteDTO.class))
-                .toList();
+    public List<ClienteDTO> listarClientes(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        if (AdminValidation.validar(login, senha)) {
+            return clienteRepository.listar().stream()
+                    .map(cliente -> objectMapper.convertValue(cliente, ClienteDTO.class))
+                    .toList();
+        }else{
+            throw new RegraDeNegocioException("Credenciais de Administrador inválidas!");
+        }
     }
 
     public ClienteDTO visualizarCliente(Integer idCliente) throws BancoDeDadosException, RegraDeNegocioException {
@@ -33,7 +38,7 @@ public class ClienteService extends Servico {
         return clienteDTO;
     }
 
-    protected ClienteDTO retornandoCliente(Integer idCliente) throws BancoDeDadosException {
+    ClienteDTO retornandoCliente(Integer idCliente) throws BancoDeDadosException {
         return objectMapper.convertValue(clienteRepository.consultarPorIdCliente(idCliente), ClienteDTO.class);
     }
 
@@ -43,7 +48,13 @@ public class ClienteService extends Servico {
         return objectMapper.convertValue(clienteRepository.adicionar(cliente), ClienteDTO.class);
     }
 
-    public ClienteDTO alterarCliente(Integer idCliente, ClienteCreateDTO clienteCreateDTO) throws BancoDeDadosException {
+    public ClienteDTO alterarCliente(Integer idCliente, ClienteCreateDTO clienteCreateDTO) throws BancoDeDadosException, RegraDeNegocioException {
+        ClienteDTO clienteDTO = visualizarCliente(idCliente);
+
+        if(!(clienteDTO.getCpf().equals(clienteCreateDTO.getCpf()))){
+            throw new RegraDeNegocioException("Digite o CPF do titular da conta!");
+        }
+
         Cliente cliente = objectMapper.convertValue(clienteCreateDTO, Cliente.class);
         return objectMapper.convertValue(clienteRepository.editar(idCliente, cliente), ClienteDTO.class);
     }
@@ -65,10 +76,10 @@ public class ClienteService extends Servico {
     }
 
     void validarClientePorCPF(ClienteCreateDTO clienteCreateDTO) throws BancoDeDadosException, RegraDeNegocioException {
-        ClienteDTO clienteDTO = listarClientes().stream()
+        ClienteDTO clienteDTO = objectMapper.convertValue(clienteRepository.listar().stream()
                 .filter(cliente -> cliente.getCpf().equals(clienteCreateDTO.getCpf()))
                 .findFirst()
-                .orElse(null);
+                .orElse(null), ClienteDTO.class);
 
         if(clienteDTO == null) {
             return;

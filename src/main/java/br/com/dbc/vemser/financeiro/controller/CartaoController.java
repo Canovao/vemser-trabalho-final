@@ -7,6 +7,7 @@ import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.TipoCartao;
 import br.com.dbc.vemser.financeiro.service.CartaoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,13 +24,15 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
-public class CartaoController {
+@Tag(name = "Cartão")
+public class CartaoController implements ControleListar<List<CartaoDTO>> {
 
     private final CartaoService cartaoService;
 
-    @GetMapping("/{numeroConta}")
-    public ResponseEntity<List<CartaoDTO>> listarPorIdConta(@PathVariable("numeroConta") Integer numeroConta) throws BancoDeDadosException {
-        return new ResponseEntity<>(cartaoService.listarPorNumeroConta(numeroConta), HttpStatus.OK);
+    @GetMapping("/listar")
+    public ResponseEntity<List<CartaoDTO>> listarPorNumeroConta(@RequestHeader("numeroConta") Integer numeroConta,
+                                                       @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        return new ResponseEntity<>(cartaoService.listarPorNumeroConta(numeroConta, senha), HttpStatus.OK);
     }
 
     @PostMapping("/criar/{tipo}")
@@ -40,24 +43,34 @@ public class CartaoController {
     }
 
     @PutMapping("/pagar")
-    public ResponseEntity<CartaoDTO> pagar(@RequestBody @Valid CartaoDTO cartaoDTO,
+    public ResponseEntity<CartaoDTO> pagar(@RequestBody @Valid CartaoPagarDTO cartaoPagarDTO,
                                            @RequestParam("valor") @NotNull Double valor,
                                            @RequestHeader("numeroConta") Integer numeroConta,
                                            @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
         log.info("Operação pagar com cartão iniciada!");
-        CartaoDTO cartaoDTOAtualizado = cartaoService.pagar(cartaoDTO, valor, numeroConta, senha);
+        CartaoDTO cartaoDTOAtualizado = cartaoService.pagar(cartaoPagarDTO, valor, numeroConta, senha);
         log.info("Operação conluída!");
         return ResponseEntity.ok(cartaoDTOAtualizado);
     }
 
     @PutMapping("/{numeroCartao}")
-    public ResponseEntity<CartaoDTO> atualizar(@PathVariable("numeroCartao") Long numeroCartao, @RequestBody CartaoCreateDTO cartaoCreateDTO) throws RegraDeNegocioException, BancoDeDadosException {
-        return new ResponseEntity<>(cartaoService.atualizar(numeroCartao, cartaoCreateDTO), HttpStatus.OK);
+    public ResponseEntity<CartaoDTO> atualizar(@PathVariable("numeroCartao") Long numeroCartao,
+                                               @RequestHeader("numeroConta") Integer numeroConta,
+                                               @RequestHeader("senha") String senha,
+                                               @RequestBody CartaoCreateDTO cartaoCreateDTO) throws RegraDeNegocioException, BancoDeDadosException {
+        return new ResponseEntity<>(cartaoService.atualizar(numeroCartao, cartaoCreateDTO, numeroConta, senha), HttpStatus.OK);
     }
 
     @DeleteMapping("/{numeroCartao}")
-    public ResponseEntity<Void> deletar(@NotNull @PathVariable("numeroCartao") Long numeroCartao) throws BancoDeDadosException, RegraDeNegocioException {
-        cartaoService.deletar(numeroCartao);
+    public ResponseEntity<Void> deletar(@NotNull @PathVariable("numeroCartao") Long numeroCartao,
+                                        @RequestHeader("numeroConta") Integer numeroConta,
+                                        @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        cartaoService.deletar(numeroCartao, numeroConta, senha);
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<List<CartaoDTO>> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        return new ResponseEntity<>(cartaoService.listar(login, senha), HttpStatus.OK);
     }
 }

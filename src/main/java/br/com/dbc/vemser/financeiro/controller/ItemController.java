@@ -7,6 +7,7 @@ import br.com.dbc.vemser.financeiro.service.ItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,8 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
-public class ItemController {
+@Tag(name = "Item")
+public class ItemController implements ControleListar<List<ItemDTO>>{
 
     private final ItemService itemService;
 
@@ -35,7 +37,16 @@ public class ItemController {
             }
     )
     @GetMapping("/{idCompra}/compra")
-    public ResponseEntity<List<ItemDTO>> listarItensDaCompra(@NotNull @PathVariable("idCompra") Integer idCompra) throws BancoDeDadosException, RegraDeNegocioException {
-        return new ResponseEntity<>(itemService.listarItensPorIdCompra(idCompra), HttpStatus.OK);
+    public ResponseEntity<List<ItemDTO>> listarItensDaCompra(@NotNull @PathVariable("idCompra") Integer idCompra,
+                                                             @RequestHeader("numeroConta") Integer numeroConta,
+                                                             @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        return new ResponseEntity<>(itemService.listarItensPorIdCompra(idCompra, numeroConta, senha), HttpStatus.OK);
+    }
+
+    @Override
+    @GetMapping("/lista")
+    @Operation(summary = "FUNÇÃO ADM", description = "LISTAR TODOS OS ITENS DO BANCO")
+    public ResponseEntity<List<ItemDTO>> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        return ResponseEntity.ok(itemService.listar(login, senha));
     }
 }
