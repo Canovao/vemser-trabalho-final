@@ -29,6 +29,8 @@ CREATE TABLE endereco (
 	estado CHAR(2) NOT NULL,
 	pais VARCHAR2(255) NOT NULL,
 	cep VARCHAR2(8) NOT NULL,
+	numero NUMBER NOT NULL,
+	complemento VARCHAR(255),
 	PRIMARY KEY (id_endereco),
 	CONSTRAINT "FK_Endereco.id_cliente" FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente)
 );
