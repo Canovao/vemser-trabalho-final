@@ -7,7 +7,6 @@ import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Endereco;
 import br.com.dbc.vemser.financeiro.repository.EnderecoRepository;
-import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,7 @@ public class EnderecoService extends Servico {
     }
 
     public List<EnderecoDTO> listarEnderecos(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        if (AdminValidation.validar(login, senha)) {
+        if (login.equals("admin") && senha.equals("abacaxi")) {
             return enderecoRepository.listar().stream()
                     .map(endereco -> objectMapper.convertValue(endereco, EnderecoDTO.class))
                     .toList();

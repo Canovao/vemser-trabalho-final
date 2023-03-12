@@ -6,7 +6,6 @@ import br.com.dbc.vemser.financeiro.dto.EnderecoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.service.ContatoService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
-@Tag(name = "Contato")
 public class ContatoController implements ControleAdicionar<ContatoCreateDTO, ContatoDTO>, ControleListar<List<ContatoDTO>>, ControleListarPorID<ContatoDTO>,
         ControleDeletar{
 

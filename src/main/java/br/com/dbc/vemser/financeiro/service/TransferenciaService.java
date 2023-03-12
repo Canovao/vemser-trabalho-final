@@ -6,7 +6,6 @@ import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Transferencia;
 import br.com.dbc.vemser.financeiro.repository.TransferenciaRepository;
-import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +36,7 @@ public class TransferenciaService extends Servico {
     }
 
     public List<TransferenciaDTO> listarTransferencias(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        if (AdminValidation.validar(login, senha)) {
+        if (login.equals("admin") && senha.equals("abacaxi")) {
             return transferenciaRepository.listar().stream()
                     .map(transferencia -> objectMapper.convertValue(transferencia, TransferenciaDTO.class))
                     .toList();
