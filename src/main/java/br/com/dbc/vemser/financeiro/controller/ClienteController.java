@@ -26,14 +26,16 @@ public class ClienteController implements ControleListar<List<ClienteDTO>> {
 
     private final ClienteService clienteService;
 
+    @Operation(summary = "Exibir nome/cpf do cliente", description = "Exibir inforamções do cliente, nome e cpf.")
     @GetMapping("/{idCliente}")
     public ResponseEntity<ClienteDTO> exibirCliente(@PathVariable("idCliente") Integer idCliente) throws BancoDeDadosException, RegraDeNegocioException {
         return ResponseEntity.ok(clienteService.visualizarCliente(idCliente));
     }
 
+    @Operation(summary = "Alterar nome do cliente", description = "Alternar nome de exibição no banco.")
     @PutMapping("/{idCliente}")
     public ResponseEntity<ClienteDTO> atualizar(@PathVariable("idCliente") Integer idCliente,
-                                                @RequestBody @Valid ClienteCreateDTO cliente) throws BancoDeDadosException {
+                                                @RequestBody @Valid ClienteCreateDTO cliente) throws BancoDeDadosException, RegraDeNegocioException {
         log.info("Atualizando Cliente!");
         ClienteDTO clienteDTO = clienteService.alterarCliente(idCliente, cliente);
         log.info("Cliente Atualizado!");

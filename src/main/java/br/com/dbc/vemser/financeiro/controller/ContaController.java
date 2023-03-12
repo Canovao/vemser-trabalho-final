@@ -27,7 +27,7 @@ public class ContaController implements ControleListar<List<ContaDTO>>{
     private final ContaService contaService;
 
     @Override
-    @Operation(summary = "Lista todas as contas do banco", description = "Lista todas as contas do banco")
+    @Operation(summary = "FUNÇÃO ADM", description = "Lista todas as contas do banco")
     @GetMapping("/lista")
     public ResponseEntity<List<ContaDTO>> listar(@RequestHeader("login") String login,
                                                        @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {

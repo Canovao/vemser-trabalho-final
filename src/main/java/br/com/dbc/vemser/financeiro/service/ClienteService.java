@@ -48,7 +48,13 @@ public class ClienteService extends Servico {
         return objectMapper.convertValue(clienteRepository.adicionar(cliente), ClienteDTO.class);
     }
 
-    public ClienteDTO alterarCliente(Integer idCliente, ClienteCreateDTO clienteCreateDTO) throws BancoDeDadosException {
+    public ClienteDTO alterarCliente(Integer idCliente, ClienteCreateDTO clienteCreateDTO) throws BancoDeDadosException, RegraDeNegocioException {
+        ClienteDTO clienteDTO = visualizarCliente(idCliente);
+
+        if(!(clienteDTO.getCpf().equals(clienteCreateDTO.getCpf()))){
+            throw new RegraDeNegocioException("Digite o CPF do titular da conta!");
+        }
+
         Cliente cliente = objectMapper.convertValue(clienteCreateDTO, Cliente.class);
         return objectMapper.convertValue(clienteRepository.editar(idCliente, cliente), ClienteDTO.class);
     }
