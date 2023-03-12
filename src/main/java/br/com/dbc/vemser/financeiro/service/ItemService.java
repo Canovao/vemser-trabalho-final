@@ -1,19 +1,19 @@
 package br.com.dbc.vemser.financeiro.service;
 
 import br.com.dbc.vemser.financeiro.dto.CartaoDTO;
-import br.com.dbc.vemser.financeiro.dto.CompraDTO;
+import br.com.dbc.vemser.financeiro.dto.CompraItensDTO;
 import br.com.dbc.vemser.financeiro.dto.ItemCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.ItemDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Item;
 import br.com.dbc.vemser.financeiro.repository.ItemRepository;
+import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class ItemService extends Servico {
@@ -45,7 +45,7 @@ public class ItemService extends Servico {
     }
 
     public List<ItemDTO> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        if (login.equals("admin") && senha.equals("abacaxi")) {
+        if (AdminValidation.validar(login, senha)) {
             return itemRepository.listar().stream()
                     .map(item -> objectMapper.convertValue(item, ItemDTO.class))
                     .toList();
@@ -68,7 +68,7 @@ public class ItemService extends Servico {
         }else{
             boolean exibir = false;
             for(CartaoDTO cartao : cartaoService.listarPorNumeroConta(numeroConta)){
-                for(CompraDTO compra: compraService.retornarComprasCartao(cartao.getNumeroCartao(), numeroConta, senha)){
+                for(CompraItensDTO compra: compraService.retornarComprasCartao(cartao.getNumeroCartao(), numeroConta, senha)){
                     if(compra.getIdCompra().equals(idCompra)){
                         exibir = true;
                         break;

@@ -2,6 +2,7 @@ package br.com.dbc.vemser.financeiro.service;
 
 import br.com.dbc.vemser.financeiro.dto.CartaoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.CartaoDTO;
+import br.com.dbc.vemser.financeiro.dto.CartaoPagarDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Cartao;
@@ -60,12 +61,12 @@ public class CartaoService extends Servico {
         }
     }
 
-    public CartaoDTO pagar(CartaoDTO cartaoDTO, Double valor, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public CartaoDTO pagar(CartaoPagarDTO cartaoPagarDTO, Double valor, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         //Validando acesso a conta
         contaService.validandoAcessoConta(numeroConta, senha);
 
         //Validando e retornando cartões da conta.
-        Cartao cartao = validarCartao(cartaoDTO, numeroConta);
+        Cartao cartao = validarCartao(cartaoPagarDTO, numeroConta);
 
         /* ********* CARTÃO DE CRÉDITO ********* */
 
@@ -126,13 +127,13 @@ public class CartaoService extends Servico {
         cartaoRepository.remover(cartao.getNumeroCartao());
     }
 
-    private Cartao validarCartao(CartaoDTO cartaoDTO, Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
+    private Cartao validarCartao(CartaoPagarDTO cartaoPagarDTO, Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
         return cartaoRepository
                 .listarPorNumeroConta(
                         numeroConta)
                 .stream()
-                .filter(cartao -> cartao.getNumeroCartao().equals(cartaoDTO.getNumeroCartao()))
-                .filter(cartao -> cartao.getCodigoSeguranca().equals(cartaoDTO.getCodigoSeguranca()))
+                .filter(cartao -> cartao.getNumeroCartao().equals(cartaoPagarDTO.getNumeroCartao()))
+                .filter(cartao -> cartao.getCodigoSeguranca().equals(cartaoPagarDTO.getCodigoSeguranca()))
                 .findFirst()
                 .orElseThrow(()-> new RegraDeNegocioException("Dados do cartão inválido!"));
     }

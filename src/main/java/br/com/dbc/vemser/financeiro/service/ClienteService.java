@@ -7,6 +7,7 @@ import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Status;
 import br.com.dbc.vemser.financeiro.repository.ClienteRepository;
+import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class ClienteService extends Servico {
     }
 
     public List<ClienteDTO> listarClientes(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        if (login.equals("admin") && senha.equals("abacaxi")) {
+        if (AdminValidation.validar(login, senha)) {
             return clienteRepository.listar().stream()
                     .map(cliente -> objectMapper.convertValue(cliente, ClienteDTO.class))
                     .toList();

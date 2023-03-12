@@ -3,18 +3,14 @@ package br.com.dbc.vemser.financeiro.service;
 import br.com.dbc.vemser.financeiro.dto.*;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Cartao;
 import br.com.dbc.vemser.financeiro.model.Compra;
-import br.com.dbc.vemser.financeiro.model.Item;
 import br.com.dbc.vemser.financeiro.repository.CompraRepository;
-import br.com.dbc.vemser.financeiro.repository.ItemRepository;
+import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,15 +27,31 @@ public class CompraService extends Servico {
         this.cartaoService = cartaoService;
         this.itemService = itemService;
     }
-    public List<Compra> list(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        if (login.equals("admin") && senha.equals("abacaxi")) {
-            return compraRepository.listar();
+    public List<CompraDTO> list(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+        if (AdminValidation.validar(login, senha)) {
+            return compraRepository.listar().stream()
+                    .map(compra -> objectMapper.convertValue(compra, CompraDTO.class))
+                    .toList();
         } else {
             throw new RegraDeNegocioException("Credenciais de Administrador inválidas!");
         }
     }
 
-    public List<CompraDTO> retornarComprasCartao(Long numeroCartao, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public CompraItensDTO getById(String login, String senha, Integer id) throws RegraDeNegocioException, BancoDeDadosException {
+        if (AdminValidation.validar(login, senha)) {
+
+            CompraItensDTO compraItensDTO =  objectMapper.convertValue(
+                    compraRepository.getById(id),
+                    CompraItensDTO.class
+            );
+            compraItensDTO.setItens(itemService.listarItensPorIdCompra(id));
+            return compraItensDTO;
+        } else {
+            throw new RegraDeNegocioException("Credenciais de Administrador inválidas!");
+        }
+    }
+
+    public List<CompraItensDTO> retornarComprasCartao(Long numeroCartao, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
 
         List<CartaoDTO> cartoes = cartaoService.listarPorNumeroConta(numeroConta).stream()
@@ -48,40 +60,40 @@ public class CompraService extends Servico {
         if(cartoes.size() == 0){
             throw new RegraDeNegocioException("Cartão não existente na conta informada!");
         }else{
-            List<CompraDTO> comprasDTO =  compraRepository.listarPorCartao(numeroCartao).stream()
-                    .map(compra -> objectMapper.convertValue(compra, CompraDTO.class))
-                    .collect(Collectors.toList());
+            List<CompraItensDTO> compraItensDTO =  compraRepository.listarPorCartao(numeroCartao).stream()
+                    .map(compra -> objectMapper.convertValue(compra, CompraItensDTO.class))
+                    .toList();
 
-            for (CompraDTO compraDTO : comprasDTO) {
-                compraDTO.setItens(itemService.listarItensPorIdCompra(compraDTO.getIdCompra()));
+            for (CompraItensDTO compra : compraItensDTO) {
+                compra.setItens(itemService.listarItensPorIdCompra(compra.getIdCompra()));
             }
 
-            return comprasDTO;
+            return compraItensDTO;
         }
     }
 
-    public CompraDTO adicionar(CompraCreateDTO compraCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException{
+    public CompraItensDTO adicionar(CompraCreateDTO compraCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException{
         contaService.validandoAcessoConta(numeroConta, senha);
 
         Double valorTotal = compraCreateDTO.getItens().stream()
                 .mapToDouble(ItemCreateDTO::getValor).sum();
 
-        CartaoDTO cartao = new CartaoDTO();
-        cartao.setNumeroCartao(compraCreateDTO.getNumeroCartao());
-        cartao.setCodigoSeguranca(compraCreateDTO.getCodigoSeguranca());
+        CartaoPagarDTO cartaoPagarDTO = new CartaoPagarDTO();
+        cartaoPagarDTO.setNumeroCartao(compraCreateDTO.getNumeroCartao());
+        cartaoPagarDTO.setCodigoSeguranca(compraCreateDTO.getCodigoSeguranca());
 
-        cartaoService.pagar(cartao, valorTotal, numeroConta, senha);
+        cartaoService.pagar(cartaoPagarDTO, valorTotal, numeroConta, senha);
 
         Compra compra = compraRepository.adicionar(objectMapper.convertValue(compraCreateDTO, Compra.class));
-        CompraDTO compraDTO = objectMapper.convertValue(compra, CompraDTO.class);
+        CompraItensDTO compraItensDTO = objectMapper.convertValue(compra, CompraItensDTO.class);
 
         for (ItemCreateDTO item : compraCreateDTO.getItens()) {
             item.setIdCompra(compra.getIdCompra());
         }
         List<ItemDTO> listItemDTO = itemService.adicionar(compraCreateDTO.getItens(), numeroConta, senha);
 
-        compraDTO.setItens(listItemDTO);
+        compraItensDTO.setItens(listItemDTO);
 
-        return compraDTO;
+        return compraItensDTO;
     }
 }

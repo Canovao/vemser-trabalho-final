@@ -8,6 +8,7 @@ import br.com.dbc.vemser.financeiro.model.Conta;
 import br.com.dbc.vemser.financeiro.model.Status;
 import br.com.dbc.vemser.financeiro.model.TipoCartao;
 import br.com.dbc.vemser.financeiro.repository.ContaRepository;
+import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -38,12 +39,12 @@ public class ContaService extends Servico {
     }
 
     public List<ContaDTO> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        if (login.equals("admin") && senha.equals("abacaxi")) {
+        if (AdminValidation.validar(login, senha)) {
             return contaRepository.listar().stream()
                     .map(conta -> objectMapper.convertValue(conta, ContaDTO.class))
                     .toList();
-        }else{
-            throw new RegraDeNegocioException("Credenciais de Administrador inválidas!");
+        } else {
+            throw new RegraDeNegocioException("Credenciais inválidas!");
         }
     }
 

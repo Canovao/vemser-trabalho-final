@@ -5,6 +5,7 @@ import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.service.ContaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,16 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Conta")
 public class ContaController implements ControleListar<List<ContaDTO>>{
 
     private final ContaService contaService;
 
     @Override
-    @Operation(summary = "FUNÇÃO ADM", description = "LISTAR TODAS AS CONTAS DO BANCO")
+    @Operation(summary = "Lista todas as contas do banco", description = "Lista todas as contas do banco")
     @GetMapping("/lista")
-    public ResponseEntity<List<ContaDTO>> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public ResponseEntity<List<ContaDTO>> listar(@RequestHeader("login") String login,
+                                                       @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
         return ResponseEntity.ok(contaService.listar(login, senha));
     }
 

@@ -2,10 +2,12 @@ package br.com.dbc.vemser.financeiro.controller;
 
 import br.com.dbc.vemser.financeiro.dto.CartaoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.CartaoDTO;
+import br.com.dbc.vemser.financeiro.dto.CartaoPagarDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.TipoCartao;
 import br.com.dbc.vemser.financeiro.service.CartaoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Cartão")
 public class CartaoController {
 
     private final CartaoService cartaoService;
@@ -39,12 +42,12 @@ public class CartaoController {
     }
 
     @PutMapping("/pagar")
-    public ResponseEntity<CartaoDTO> pagar(@RequestBody @Valid CartaoDTO cartaoDTO,
+    public ResponseEntity<CartaoDTO> pagar(@RequestBody @Valid CartaoPagarDTO cartaoPagarDTO,
                                            @RequestParam("valor") @NotNull Double valor,
                                            @RequestHeader("numeroConta") Integer numeroConta,
                                            @RequestHeader("senha") String senha) throws BancoDeDadosException, RegraDeNegocioException {
         log.info("Operação pagar com cartão iniciada!");
-        CartaoDTO cartaoDTOAtualizado = cartaoService.pagar(cartaoDTO, valor, numeroConta, senha);
+        CartaoDTO cartaoDTOAtualizado = cartaoService.pagar(cartaoPagarDTO, valor, numeroConta, senha);
         log.info("Operação conluída!");
         return ResponseEntity.ok(cartaoDTOAtualizado);
     }
