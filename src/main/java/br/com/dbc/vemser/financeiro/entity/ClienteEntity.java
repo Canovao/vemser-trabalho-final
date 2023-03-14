@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +29,7 @@ public class ClienteEntity {
     private Status status;
 
     @OneToMany(mappedBy = "cliente")
-    private List<ContatoEntity> contatos;
+    private Set<ContatoEntity> contatos;
 
     @Override
     public String toString() {
