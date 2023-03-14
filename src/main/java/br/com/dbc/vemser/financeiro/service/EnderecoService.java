@@ -41,7 +41,7 @@ public class EnderecoService extends Servico {
         }
     }
 
-    public List<EnderecoDTO> listarEnderecosDoCliente(Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public List<EnderecoDTO> listarEnderecosDoCliente(Integer numeroConta, String senha) throws RegraDeNegocioException {
         ContaDTO conta = contaService.validandoAcessoConta(numeroConta, senha);
         clienteService.visualizarCliente(conta.getCliente().getIdCliente());
         return this.enderecoRepository.listarEnderecosPorPessoa(conta.getCliente().getIdCliente()).stream()
@@ -74,13 +74,17 @@ public class EnderecoService extends Servico {
         return objectMapper.convertValue(enderecoRepository.editar(idEndereco, endereco), EnderecoDTO.class);
     }
 
-    public boolean deletar(Integer idEndereco, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public boolean deletar(Integer idEndereco, Integer numeroConta, String senha) throws RegraDeNegocioException {
         List<EnderecoDTO> enderecoDTOS = listarEnderecosDoCliente(numeroConta, senha);
 
         if(enderecoDTOS.size() == 1){
             throw new RegraDeNegocioException("É necessário ter ao menos um endereço!");
         }
-        return this.enderecoRepository.remover(idEndereco);
+        this.enderecoRepository.deleteById(idEndereco);
+
+        //mesma coisa, rever o return desse método (transformar em void?)
+
+        return true;
     }
 
     private void validarEndereco(Integer idEndereco) throws RegraDeNegocioException {

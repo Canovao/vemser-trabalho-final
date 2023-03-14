@@ -40,7 +40,7 @@ public class ContatoService extends Servico {
         }
     }
 
-    public List<ContatoDTO> listarContatosDoCliente(Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public List<ContatoDTO> listarContatosDoCliente(Integer numeroConta, String senha) throws RegraDeNegocioException {
         return contatoRepository.findAllByCliente(
                         objectMapper.convertValue(clienteService.visualizarCliente(contaService.validandoAcessoConta(numeroConta, senha).getCliente().getIdCliente()), Cliente.class)
                 ).stream()
@@ -73,13 +73,16 @@ public class ContatoService extends Servico {
         return objectMapper.convertValue(contatoRepository.editar(idContato, contato), ContatoDTO.class);
     }
 
-    public boolean deletar(Integer idContato, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public boolean deletar(Integer idContato, Integer numeroConta, String senha) throws RegraDeNegocioException {
         this.contaService.validandoAcessoConta(numeroConta, senha);
         List<ContatoDTO> contatoDTOS = listarContatosDoCliente(numeroConta, senha);
         if(contatoDTOS.size() == 1){
             throw new RegraDeNegocioException("É necessário ter ao menos um contato!");
         }
-        return this.contatoRepository.remover(idContato);
+        this.contatoRepository.deleteById(idContato);
+
+        //rever esse return, talvez transformar o deletar em void
+        return true;
     }
 
     private void validarContato(Integer idContato) throws RegraDeNegocioException {

@@ -177,7 +177,7 @@ public class ContaService extends Servico {
         return conta;
     }
 
-    public ContaDTO validandoAcessoConta(Integer numeroConta, String senha) throws RegraDeNegocioException, BancoDeDadosException {
+    public ContaDTO validandoAcessoConta(Integer numeroConta, String senha) throws RegraDeNegocioException {
         Conta conta = contaRepository.consultarNumeroConta(numeroConta);
 
         if(Objects.isNull(conta)){
