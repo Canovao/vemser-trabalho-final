@@ -5,6 +5,7 @@ import br.com.dbc.vemser.financeiro.dto.TransferenciaDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Transferencia;
+import br.com.dbc.vemser.financeiro.repository.TransferenciaRepository;
 import br.com.dbc.vemser.financeiro.repository.oldRepositories.TransferenciaRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,10 +18,10 @@ import java.util.stream.Collectors;
 @Service
 public class TransferenciaService extends Servico {
 
-    private final TransferenciaRepository2 transferenciaRepository;
+    private final TransferenciaRepository transferenciaRepository;
     private final ContaService contaService;
 
-    public TransferenciaService(TransferenciaRepository2 transferenciaRepository, ObjectMapper objectMapper, ContaService contaService) {
+    public TransferenciaService(TransferenciaRepository transferenciaRepository, ObjectMapper objectMapper, ContaService contaService) {
         super(objectMapper);
         this.transferenciaRepository = transferenciaRepository;
         this.contaService = contaService;
@@ -29,7 +30,7 @@ public class TransferenciaService extends Servico {
     public TransferenciaDTO adicionarTransferencia(TransferenciaCreateDTO transferenciaCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
         Transferencia transferencia = objectMapper.convertValue(transferenciaCreateDTO, Transferencia.class);
-        return objectMapper.convertValue(transferenciaRepository.adicionar(transferencia), TransferenciaDTO.class);
+        return objectMapper.convertValue(transferenciaRepository.save(transferencia), TransferenciaDTO.class);
     }
 
     public TransferenciaDTO retornarTransferencia(Integer idTransferencia, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
@@ -41,9 +42,9 @@ public class TransferenciaService extends Servico {
         }
     }
 
-    public List<TransferenciaDTO> listarTransferencias(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
+    public List<TransferenciaDTO> listarTransferencias(String login, String senha) throws RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-            return transferenciaRepository.listar().stream()
+            return transferenciaRepository.findAll().stream()
                     .map(transferencia -> objectMapper.convertValue(transferencia, TransferenciaDTO.class))
                     .toList();
         }else{

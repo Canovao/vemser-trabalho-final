@@ -9,6 +9,7 @@ import br.com.dbc.vemser.financeiro.model.Cartao;
 import br.com.dbc.vemser.financeiro.model.CartaoDeCredito;
 import br.com.dbc.vemser.financeiro.model.CartaoDeDebito;
 import br.com.dbc.vemser.financeiro.model.TipoCartao;
+import br.com.dbc.vemser.financeiro.repository.CartaoRepository;
 import br.com.dbc.vemser.financeiro.repository.oldRepositories.CartaoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,10 +25,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 public class CartaoService extends Servico {
 
-    private final CartaoRepository2 cartaoRepository;
+    private final CartaoRepository cartaoRepository;
     private final ContaService contaService;
 
-    public CartaoService(@Lazy ContaService contaService, CartaoRepository2 cartaoRepository, ObjectMapper objectMapper) {
+    public CartaoService(@Lazy ContaService contaService, CartaoRepository cartaoRepository, ObjectMapper objectMapper) {
         super(objectMapper);
         this.cartaoRepository = cartaoRepository;
         this.contaService = contaService;
@@ -35,14 +36,14 @@ public class CartaoService extends Servico {
 
     public List<CartaoDTO> listarPorNumeroConta(Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        List<Cartao> cartoes = cartaoRepository.listarPorNumeroConta(numeroConta);
+        List<Cartao> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
         return cartoes.stream()
                 .map(cartao -> objectMapper.convertValue(cartao, CartaoDTO.class))
                 .toList();
     }
 
     private List<CartaoDTO> listarPorNumeroConta(Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
-        List<Cartao> cartoes = cartaoRepository.listarPorNumeroConta(numeroConta);
+        List<Cartao> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
         return cartoes.stream()
                 .map(cartao -> objectMapper.convertValue(cartao, CartaoDTO.class))
                 .toList();
@@ -50,7 +51,7 @@ public class CartaoService extends Servico {
 
     public CartaoDTO criar(Integer numeroConta, String senha, TipoCartao tipo) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        List<Cartao> cartoes = cartaoRepository.listarPorNumeroConta(numeroConta);
+        List<Cartao> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
         if (cartoes.size() == 2) {
             throw new RegraDeNegocioException("Usuário já possui dois cartões");
         } else {
@@ -66,7 +67,7 @@ public class CartaoService extends Servico {
             cartao.setTipo(tipo);
             cartao.setVencimento(cartao.getDataExpedicao().plusYears(4));
 
-            return objectMapper.convertValue(cartaoRepository.adicionar(cartao), CartaoDTO.class);
+            return objectMapper.convertValue(cartaoRepository.save(cartao), CartaoDTO.class);
         }
     }
 
@@ -107,7 +108,8 @@ public class CartaoService extends Servico {
 
     public CartaoDTO atualizar(Long numeroCartao, CartaoCreateDTO cartaoCreateDTO, Integer numeroConta, String senha) throws RegraDeNegocioException, BancoDeDadosException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        Cartao cartao = cartaoRepository.getPorNumeroCartao(numeroCartao);
+        Cartao cartao = this.getPeloNumeroCartao(numeroCartao);
+
         Cartao cartaoEditado;
         if(cartao.getTipo().equals(TipoCartao.DEBITO)) {
             cartaoEditado = cartaoRepository.editar(numeroCartao, objectMapper.convertValue(cartaoCreateDTO, CartaoDeDebito.class));
@@ -120,8 +122,9 @@ public class CartaoService extends Servico {
     public void deletar(Long numeroCartao, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
         log.info("Buscando cartão...");
-        Cartao cartao = cartaoRepository.getPorNumeroCartao(numeroCartao);
-        List<Cartao> cartoes = cartaoRepository.listarPorNumeroConta(cartao.getNumeroConta());
+        Cartao cartao = this.getPeloNumeroCartao(numeroCartao);
+
+        List<Cartao> cartoes = cartaoRepository.findAllByNumeroConta(cartao.getNumeroConta());
 
         if (cartoes.size() == 1) {
             throw new RegraDeNegocioException("Cliente possui apenas um cartão");
@@ -135,12 +138,12 @@ public class CartaoService extends Servico {
             }
         }
 
-        cartaoRepository.remover(cartao.getNumeroCartao());
+        cartaoRepository.softDelete(cartao.getNumeroCartao());
     }
 
     public List<CartaoDTO> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-            return cartaoRepository.listar().stream()
+            return cartaoRepository.findAll().stream()
                     .map(cartao -> objectMapper.convertValue(cartao, CartaoDTO.class))
                     .toList();
         } else {
@@ -163,8 +166,13 @@ public class CartaoService extends Servico {
         List<CartaoDTO> cartoes = listarPorNumeroConta(numeroConta);
 
         for(CartaoDTO cartao: cartoes){
-            cartaoRepository.remover(cartao.getNumeroCartao());
+            cartaoRepository.softDelete(cartao.getNumeroCartao());
         }
+    }
+
+    Cartao getPeloNumeroCartao(Long numeroCartao) throws RegraDeNegocioException {
+        return cartaoRepository.findByNumeroCartao(numeroCartao)
+                .orElseThrow(() -> new RegraDeNegocioException("Cartão não encontrado!"));
     }
 
 }

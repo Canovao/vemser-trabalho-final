@@ -7,6 +7,7 @@ import br.com.dbc.vemser.financeiro.dto.ItemDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Item;
+import br.com.dbc.vemser.financeiro.repository.ItemRepository;
 import br.com.dbc.vemser.financeiro.repository.oldRepositories.ItemRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,12 +19,12 @@ import java.util.List;
 @Service
 public class ItemService extends Servico {
 
-    private final ItemRepository2 itemRepository;
+    private final ItemRepository itemRepository;
     private final CartaoService cartaoService;
     private final ContaService contaService;
     private final CompraService compraService;
 
-    public ItemService(ItemRepository2 itemRepository, ObjectMapper objectMapper, CartaoService cartaoService, ContaService contaService, CompraService compraService) {
+    public ItemService(ItemRepository itemRepository, ObjectMapper objectMapper, CartaoService cartaoService, ContaService contaService, CompraService compraService) {
         super(objectMapper);
         this.itemRepository = itemRepository;
         this.cartaoService = cartaoService;
@@ -38,7 +39,7 @@ public class ItemService extends Servico {
                 .toList();
         List<ItemDTO> itensDTO = new ArrayList<>();
         for(Item item : itens) {
-            Item itemCreated = itemRepository.adicionar(item);
+            Item itemCreated = itemRepository.save(item);
             itensDTO.add(objectMapper.convertValue(itemCreated, ItemDTO.class));
         }
         return itensDTO;
@@ -46,7 +47,7 @@ public class ItemService extends Servico {
 
     public List<ItemDTO> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-            return itemRepository.listar().stream()
+            return itemRepository.findAll().stream()
                     .map(item -> objectMapper.convertValue(item, ItemDTO.class))
                     .toList();
         }else{
@@ -54,13 +55,13 @@ public class ItemService extends Servico {
         }
     }
     public List<ItemDTO> listarItensPorIdCompra(Integer idCompra) throws BancoDeDadosException, RegraDeNegocioException {
-        return itemRepository.listarItensPorIdCompra(idCompra).stream()
+        return itemRepository.findAllByIdCompra(idCompra).stream()
                 .map(item -> objectMapper.convertValue(item, ItemDTO.class))
                 .toList();
     }
 
     public List<ItemDTO> listarItensPorIdCompra(Integer idCompra, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        List<ItemDTO> itens = itemRepository.listarItensPorIdCompra(idCompra).stream()
+        List<ItemDTO> itens = itemRepository.findAllByIdCompra(idCompra).stream()
                 .map(item -> objectMapper.convertValue(item, ItemDTO.class))
                 .toList();
         if(itens.size() == 0){

@@ -7,6 +7,7 @@ import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Conta;
 import br.com.dbc.vemser.financeiro.model.Status;
 import br.com.dbc.vemser.financeiro.model.TipoCartao;
+import br.com.dbc.vemser.financeiro.repository.ContaRepository;
 import br.com.dbc.vemser.financeiro.repository.oldRepositories.ContaRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,14 +20,14 @@ import java.util.Random;
 
 @Service
 public class ContaService extends Servico {
-    private final ContaRepository2 contaRepository;
+    private final ContaRepository contaRepository;
     private final ClienteService clienteService;
     private final CartaoService cartaoService;
     private final ContatoService contatoService;
     private final EnderecoService enderecoService;
     private final EmailService emailService;
 
-    public ContaService(ContaRepository2 contaRepository, @Lazy ClienteService clienteService,
+    public ContaService(ContaRepository contaRepository, @Lazy ClienteService clienteService,
                         @Lazy CartaoService cartaoService, @Lazy ContatoService contatoService,
                         @Lazy EnderecoService enderecoService, ObjectMapper objectMapper, EmailService emailService) {
         super(objectMapper);
@@ -40,7 +41,7 @@ public class ContaService extends Servico {
 
     public List<ContaDTO> listar(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-            return contaRepository.listar().stream()
+            return contaRepository.findAll().stream()
                     .map(conta -> objectMapper.convertValue(conta, ContaDTO.class))
                     .toList();
         } else {
@@ -57,7 +58,7 @@ public class ContaService extends Servico {
         ClienteDTO clienteDTO = clienteService.adicionarCliente(contaCreateDTO.getClienteCreateDTO());
 
         //Criando conta
-        Conta conta = contaRepository.adicionar(criandoDados(contaCreateDTO, clienteDTO));
+        Conta conta = contaRepository.save(criandoDados(contaCreateDTO, clienteDTO));
 
         //Criando contato
         contaCreateDTO.getContatoCreateDTO().setIdCliente(clienteDTO.getIdCliente());
@@ -149,7 +150,7 @@ public class ContaService extends Servico {
             cartaoService.deletarTodosCartoes(numeroConta);
 
             //Deletando conta
-            contaRepository.remover(numeroConta);
+            contaRepository.delete(numeroConta);
 
             //Deletando cliente
             clienteService.deletarCliente(contaAserRemovida.getCliente().getIdCliente());

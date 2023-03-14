@@ -6,6 +6,7 @@ import br.com.dbc.vemser.financeiro.dto.ContatoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Contato;
+import br.com.dbc.vemser.financeiro.repository.ContatoRepository;
 import br.com.dbc.vemser.financeiro.repository.oldRepositories.ContatoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,11 +18,11 @@ import java.util.List;
 @Service
 public class ContatoService extends Servico {
 
-    private final ContatoRepository2 contatoRepository;
+    private final ContatoRepository contatoRepository;
     private final ClienteService clienteService;
     private final ContaService contaService;
 
-    public ContatoService(ContatoRepository2 contatoRepository, ClienteService clienteService, ObjectMapper objectMapper, @Lazy ContaService contaService) {
+    public ContatoService(ContatoRepository contatoRepository, ClienteService clienteService, ObjectMapper objectMapper, @Lazy ContaService contaService) {
         super(objectMapper);
         this.clienteService = clienteService;
         this.contatoRepository = contatoRepository;
@@ -30,7 +31,7 @@ public class ContatoService extends Servico {
 
     public List<ContatoDTO> listarContatos(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-            return contatoRepository.listar().stream()
+            return contatoRepository.findAll().stream()
                     .map(contato -> objectMapper.convertValue(contato, ContatoDTO.class))
                     .toList();
         }else{
@@ -57,7 +58,7 @@ public class ContatoService extends Servico {
         validarNumeroContato(contatoCreateDTO);
 
         Contato contato = objectMapper.convertValue(contatoCreateDTO, Contato.class);
-        return objectMapper.convertValue(contatoRepository.adicionar(contato), ContatoDTO.class);
+        return objectMapper.convertValue(contatoRepository.save(contato), ContatoDTO.class);
     }
 
     public ContatoDTO atualizar(Integer idContato, ContatoCreateDTO contatoCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
@@ -82,10 +83,9 @@ public class ContatoService extends Servico {
         return this.contatoRepository.remover(idContato);
     }
 
-    private void validarContato(Integer idContato) throws BancoDeDadosException, RegraDeNegocioException {
-        if(contatoRepository.listar().stream().noneMatch(contato -> contato.getIdContato().equals(idContato))){
-            throw new RegraDeNegocioException("Contato não encontrado!");
-        }
+    private void validarContato(Integer idContato) throws RegraDeNegocioException {
+        contatoRepository.findById(idContato)
+                .orElseThrow(() -> new RegraDeNegocioException("Contato não encontrado!"));
     }
 
     private void validarNumeroContato(ContatoCreateDTO contatoCreateDTO) throws BancoDeDadosException, RegraDeNegocioException {

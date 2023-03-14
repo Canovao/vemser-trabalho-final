@@ -8,6 +8,7 @@ import br.com.dbc.vemser.financeiro.dto.EnderecoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Endereco;
+import br.com.dbc.vemser.financeiro.repository.EnderecoRepository;
 import br.com.dbc.vemser.financeiro.repository.oldRepositories.EnderecoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,11 +20,11 @@ import java.util.stream.Collectors;
 @Service
 public class EnderecoService extends Servico {
 
-    private final EnderecoRepository2 enderecoRepository;
+    private final EnderecoRepository enderecoRepository;
     private final ClienteService clienteService;
     private final ContaService contaService;
 
-    public EnderecoService(EnderecoRepository2 enderecoRepository, ClienteService clienteService, ObjectMapper objectMapper, ContaService contaService) {
+    public EnderecoService(EnderecoRepository enderecoRepository, ClienteService clienteService, ObjectMapper objectMapper, ContaService contaService) {
         super(objectMapper);
         this.enderecoRepository = enderecoRepository;
         this.clienteService = clienteService;
@@ -32,7 +33,7 @@ public class EnderecoService extends Servico {
 
     public List<EnderecoDTO> listarEnderecos(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-            return enderecoRepository.listar().stream()
+            return enderecoRepository.findAll().stream()
                     .map(endereco -> objectMapper.convertValue(endereco, EnderecoDTO.class))
                     .toList();
         }else{
@@ -57,7 +58,7 @@ public class EnderecoService extends Servico {
         validarCEPEndereco(enderecoCreateDTO);
 
         Endereco endereco = objectMapper.convertValue(enderecoCreateDTO, Endereco.class);
-        return objectMapper.convertValue(enderecoRepository.adicionar(endereco), EnderecoDTO.class);
+        return objectMapper.convertValue(enderecoRepository.save(endereco), EnderecoDTO.class);
     }
 
     public EnderecoDTO atualizar(Integer idEndereco, EnderecoCreateDTO enderecoCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
@@ -82,13 +83,14 @@ public class EnderecoService extends Servico {
         return this.enderecoRepository.remover(idEndereco);
     }
 
-    private void validarEndereco(Integer idEndereco) throws BancoDeDadosException, RegraDeNegocioException {
-        if(enderecoRepository.listar().stream().noneMatch(endereco -> endereco.getIdEndereco().equals(idEndereco))){
-            throw new RegraDeNegocioException("Endereço não encontrado!");
-        }
+    private void validarEndereco(Integer idEndereco) throws RegraDeNegocioException {
+        enderecoRepository.findById(idEndereco)
+                .orElseThrow(() -> new RegraDeNegocioException("Endereço não encontrado!"));
+
     }
 
-    private void validarCEPEndereco(EnderecoCreateDTO enderecoCreateDTO) throws BancoDeDadosException, RegraDeNegocioException {
+    private void validarCEPEndereco(EnderecoCreateDTO enderecoCreateDTO) throws RegraDeNegocioException {
+
         if(enderecoRepository.listar().stream()
                 .filter(enderecoDTO -> enderecoDTO.getIdCliente().equals(enderecoCreateDTO.getIdCliente()))
                 .anyMatch(enderecoDTO -> enderecoDTO.getCep().equals(enderecoCreateDTO.getCep()) && enderecoDTO.getNumero().equals(enderecoCreateDTO.getNumero()))){

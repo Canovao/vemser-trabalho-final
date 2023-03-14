@@ -4,6 +4,7 @@ import br.com.dbc.vemser.financeiro.dto.*;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Compra;
+import br.com.dbc.vemser.financeiro.repository.CompraRepository;
 import br.com.dbc.vemser.financeiro.repository.oldRepositories.CompraRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,12 +15,13 @@ import java.util.List;
 
 @Service
 public class CompraService extends Servico {
-    private final CompraRepository2 compraRepository;
+    private final CompraRepository compraRepository;
     private final ItemService itemService;
     private final ContaService contaService;
     private final CartaoService cartaoService;
 
-    public CompraService(CompraRepository2 compraRepository, ObjectMapper objectMapper, ContaService contaService, CartaoService cartaoService, @Lazy ItemService itemService) {
+    public CompraService(CompraRepository compraRepository, ObjectMapper objectMapper, ContaService contaService,
+                         CartaoService cartaoService, @Lazy ItemService itemService) {
         super(objectMapper);
         this.compraRepository = compraRepository;
         this.contaService = contaService;
@@ -28,7 +30,7 @@ public class CompraService extends Servico {
     }
     public List<CompraDTO> list(String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-            return compraRepository.listar().stream()
+            return compraRepository.findAll().stream()
                     .map(compra -> objectMapper.convertValue(compra, CompraDTO.class))
                     .toList();
         } else {
@@ -40,7 +42,7 @@ public class CompraService extends Servico {
         if (AdminValidation.validar(login, senha)) {
 
             CompraItensDTO compraItensDTO =  objectMapper.convertValue(
-                    compraRepository.getById(id),
+                    compraRepository.findById(id),
                     CompraItensDTO.class
             );
             compraItensDTO.setItens(itemService.listarItensPorIdCompra(id));
@@ -59,7 +61,7 @@ public class CompraService extends Servico {
         if(cartoes.size() == 0){
             throw new RegraDeNegocioException("Cartão não existente na conta informada!");
         }else{
-            List<CompraItensDTO> compraItensDTO =  compraRepository.listarPorCartao(numeroCartao).stream()
+            List<CompraItensDTO> compraItensDTO =  compraRepository.findAllByNumeroCartao(numeroCartao).stream()
                     .map(compra -> objectMapper.convertValue(compra, CompraItensDTO.class))
                     .toList();
 
@@ -83,7 +85,7 @@ public class CompraService extends Servico {
 
         cartaoService.pagar(cartaoPagarDTO, valorTotal, numeroConta, senha);
 
-        Compra compra = compraRepository.adicionar(objectMapper.convertValue(compraCreateDTO, Compra.class));
+        Compra compra = compraRepository.save(objectMapper.convertValue(compraCreateDTO, Compra.class));
         CompraItensDTO compraItensDTO = objectMapper.convertValue(compra, CompraItensDTO.class);
 
         for (ItemCreateDTO item : compraCreateDTO.getItens()) {
