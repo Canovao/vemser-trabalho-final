@@ -17,8 +17,8 @@ public class Item {
     @SequenceGenerator(name = "ITEM_SEQ", sequenceName = "SEQ_ITEM", allocationSize = 1)
     private Integer idItem;//PK
 
-    @Column(name = "ID_COMPRA")
-    private Integer idCompra;
+//    @Column(name = "ID_COMPRA")
+//    private Integer idCompra;
 
     @Column(name = "NOME")
     private String nome;
@@ -28,4 +28,9 @@ public class Item {
 
     @Column(name = "QUANTIDADE")
     private Integer quantidade;
+
+    @ManyToOne
+    @JoinColumn(name = "ID_COMPRA")
+    private Compra compra;
+
 }
