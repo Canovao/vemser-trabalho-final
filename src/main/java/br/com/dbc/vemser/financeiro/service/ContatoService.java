@@ -5,6 +5,7 @@ import br.com.dbc.vemser.financeiro.dto.ContatoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.ContatoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
+import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Contato;
 import br.com.dbc.vemser.financeiro.repository.ContatoRepository;
 import br.com.dbc.vemser.financeiro.repository.oldRepositories.ContatoRepository2;
@@ -40,10 +41,8 @@ public class ContatoService extends Servico {
     }
 
     public List<ContatoDTO> listarContatosDoCliente(Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        return contatoRepository.listarContatosPorPessoa(
-                        clienteService.visualizarCliente(
-                                contaService.validandoAcessoConta(numeroConta, senha).getCliente().getIdCliente()
-                        ).getIdCliente()
+        return contatoRepository.findAllByCliente(
+                        objectMapper.convertValue(clienteService.visualizarCliente(contaService.validandoAcessoConta(numeroConta, senha).getCliente().getIdCliente()), Cliente.class)
                 ).stream()
                 .map(contato -> objectMapper.convertValue(contato, ContatoDTO.class))
                 .toList();
