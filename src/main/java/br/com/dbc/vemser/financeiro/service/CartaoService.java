@@ -153,7 +153,7 @@ public class CartaoService extends Servico {
 
     private Cartao validarCartao(CartaoPagarDTO cartaoPagarDTO, Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
         return cartaoRepository
-                .listarPorNumeroConta(
+                .findAllByNumeroConta(
                         numeroConta)
                 .stream()
                 .filter(cartao -> cartao.getNumeroCartao().equals(cartaoPagarDTO.getNumeroCartao()))
