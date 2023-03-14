@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ContatoRepository extends JpaRepository<ContatoEntity, Integer> {
-    List<ContatoEntity> findAllByCliente(ClienteEntity cliente);
+    List<ContatoEntity> findByCliente(ClienteEntity cliente);
 }

@@ -13,7 +13,7 @@ public interface CartaoRepository extends JpaRepository<CartaoEntity, Integer> {
     @Query(value = "UPDATE CARTAO SET STATUS = 0 WHERE NUMERO_CARTAO = :numeroCartao")
     CartaoEntity softDelete(Long numeroCartao);
 
-    List<CartaoEntity> findAllByNumeroConta(Integer numeroConta);
+    List<CartaoEntity> findByNumeroConta(Integer numeroConta);
 
     Optional<CartaoEntity> findByNumeroCartao(Long numeroCartao);
 }

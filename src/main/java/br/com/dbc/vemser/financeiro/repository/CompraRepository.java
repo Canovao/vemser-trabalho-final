@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface CompraRepository extends JpaRepository<CompraEntity, Integer> {
-    List<CompraEntity> findAllByNumeroCartao(Long numeroCartao);
+    List<CompraEntity> findByNumeroCartao(Long numeroCartao);
 }

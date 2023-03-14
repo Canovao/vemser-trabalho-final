@@ -40,7 +40,7 @@ public class ContatoService extends Servico {
     }
 
     public List<ContatoDTO> listarContatosDoCliente(Integer numeroConta, String senha) throws RegraDeNegocioException {
-        return contatoRepository.findAllByCliente(
+        return contatoRepository.findByCliente(
                         objectMapper.convertValue(clienteService.visualizarCliente(contaService.validandoAcessoConta(numeroConta, senha).getCliente().getIdCliente()), ClienteEntity.class)
                 ).stream()
                 .map(contato -> objectMapper.convertValue(contato, ContatoDTO.class))

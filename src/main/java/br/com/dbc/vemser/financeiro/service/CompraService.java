@@ -60,7 +60,7 @@ public class CompraService extends Servico {
         if(cartoes.size() == 0){
             throw new RegraDeNegocioException("Cartão não existente na conta informada!");
         }else{
-            List<CompraItensDTO> compraItensDTO =  compraRepository.findAllByNumeroCartao(numeroCartao).stream()
+            List<CompraItensDTO> compraItensDTO =  compraRepository.findByNumeroCartao(numeroCartao).stream()
                     .map(compra -> objectMapper.convertValue(compra, CompraItensDTO.class))
                     .toList();
 

@@ -35,14 +35,14 @@ public class CartaoService extends Servico {
 
     public List<CartaoDTO> listarPorNumeroConta(Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        List<CartaoEntity> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
+        List<CartaoEntity> cartoes = cartaoRepository.findByNumeroConta(numeroConta);
         return cartoes.stream()
                 .map(cartao -> objectMapper.convertValue(cartao, CartaoDTO.class))
                 .toList();
     }
 
     private List<CartaoDTO> listarPorNumeroConta(Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
-        List<CartaoEntity> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
+        List<CartaoEntity> cartoes = cartaoRepository.findByNumeroConta(numeroConta);
         return cartoes.stream()
                 .map(cartao -> objectMapper.convertValue(cartao, CartaoDTO.class))
                 .toList();
@@ -50,7 +50,7 @@ public class CartaoService extends Servico {
 
     public CartaoDTO criar(Integer numeroConta, String senha, TipoCartao tipo) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        List<CartaoEntity> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
+        List<CartaoEntity> cartoes = cartaoRepository.findByNumeroConta(numeroConta);
         if (cartoes.size() == 2) {
             throw new RegraDeNegocioException("Usuário já possui dois cartões");
         } else {
@@ -123,7 +123,7 @@ public class CartaoService extends Servico {
         log.info("Buscando cartão...");
         CartaoEntity cartao = this.getPeloNumeroCartao(numeroCartao);
 
-        List<CartaoEntity> cartoes = cartaoRepository.findAllByNumeroConta(cartao.getNumeroConta());
+        List<CartaoEntity> cartoes = cartaoRepository.findByNumeroConta(cartao.getNumeroConta());
 
         if (cartoes.size() == 1) {
             throw new RegraDeNegocioException("Cliente possui apenas um cartão");
@@ -152,7 +152,7 @@ public class CartaoService extends Servico {
 
     private CartaoEntity validarCartao(CartaoPagarDTO cartaoPagarDTO, Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
         return cartaoRepository
-                .findAllByNumeroConta(
+                .findByNumeroConta(
                         numeroConta)
                 .stream()
                 .filter(cartao -> cartao.getNumeroCartao().equals(cartaoPagarDTO.getNumeroCartao()))

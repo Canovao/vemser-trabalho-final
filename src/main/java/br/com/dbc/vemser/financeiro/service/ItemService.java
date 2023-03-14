@@ -54,13 +54,13 @@ public class ItemService extends Servico {
         }
     }
     public List<ItemDTO> listarItensPorIdCompra(Integer idCompra) throws BancoDeDadosException, RegraDeNegocioException {
-        return itemRepository.findAllByIdCompra(idCompra).stream()
+        return itemRepository.findByIdCompra(idCompra).stream()
                 .map(item -> objectMapper.convertValue(item, ItemDTO.class))
                 .toList();
     }
 
     public List<ItemDTO> listarItensPorIdCompra(Integer idCompra, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
-        List<ItemDTO> itens = itemRepository.findAllByIdCompra(idCompra).stream()
+        List<ItemDTO> itens = itemRepository.findByIdCompra(idCompra).stream()
                 .map(item -> objectMapper.convertValue(item, ItemDTO.class))
                 .toList();
         if(itens.size() == 0){
