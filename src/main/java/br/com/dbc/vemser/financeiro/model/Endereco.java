@@ -1,20 +1,44 @@
 package br.com.dbc.vemser.financeiro.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
+@Entity
 public class Endereco {
+
+    @Id
+    @Column(name = "ID_ENDERECO")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ENDERECO_SEQ")
+    @SequenceGenerator(name = "ENDERECO_SEQ", sequenceName = "SEQ_ENDERECO", allocationSize = 1)
     private Integer idEndereco;
+
+    @Column(name = "ID_CLIENTE")
     private Integer idCliente;
+
+    @Column(name = "LOGRADOURO")
     private String logradouro;
-    private String cidade;
-    private String estado;
-    private String pais;
+
+    @Column(name = "CEP")
     private String cep;
+
+    @Column(name = "COMPLEMENTO")
     private String complemento;
+
+    @Column(name = "NUMERO")
     private Integer numero;
+
+    @Column(name = "CIDADE")
+    private String cidade;
+
+    @Column(name = "ESTADO")
+    private String estado;
+
+    @Column(name = "PAIS")
+    private String pais;
+
 }

@@ -1,17 +1,29 @@
 package br.com.dbc.vemser.financeiro.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+
+import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
+@Entity
 public class Cliente {
+
+    @Id
+    @Column(name = "ID_CLIENTE")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "CLIENTE_SEQ")
+    @SequenceGenerator(name = "CLIENTE_SEQ", sequenceName = "SEQ_CLIENTE", allocationSize = 1)
     private Integer idCliente;
+
+    @Column(name = "CPF")
     private String cpf;
+
+    @Column(name = "NOME")
     private String nome;
+
+    @Column(name = "STATUS")
     private Status status;
 
     @Override
