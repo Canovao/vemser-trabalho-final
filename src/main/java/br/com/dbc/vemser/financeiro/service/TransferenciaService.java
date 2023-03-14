@@ -5,7 +5,7 @@ import br.com.dbc.vemser.financeiro.dto.TransferenciaDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Transferencia;
-import br.com.dbc.vemser.financeiro.repository.TransferenciaRepository;
+import br.com.dbc.vemser.financeiro.repository.oldRepositories.TransferenciaRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 @Service
 public class TransferenciaService extends Servico {
 
-    private final TransferenciaRepository transferenciaRepository;
+    private final TransferenciaRepository2 transferenciaRepository;
     private final ContaService contaService;
 
-    public TransferenciaService(TransferenciaRepository transferenciaRepository, ObjectMapper objectMapper, ContaService contaService) {
+    public TransferenciaService(TransferenciaRepository2 transferenciaRepository, ObjectMapper objectMapper, ContaService contaService) {
         super(objectMapper);
         this.transferenciaRepository = transferenciaRepository;
         this.contaService = contaService;

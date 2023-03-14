@@ -6,23 +6,22 @@ import br.com.dbc.vemser.financeiro.dto.ContatoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Contato;
-import br.com.dbc.vemser.financeiro.repository.ContatoRepository;
+import br.com.dbc.vemser.financeiro.repository.oldRepositories.ContatoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class ContatoService extends Servico {
 
-    private final ContatoRepository contatoRepository;
+    private final ContatoRepository2 contatoRepository;
     private final ClienteService clienteService;
     private final ContaService contaService;
 
-    public ContatoService(ContatoRepository contatoRepository, ClienteService clienteService, ObjectMapper objectMapper, @Lazy ContaService contaService) {
+    public ContatoService(ContatoRepository2 contatoRepository, ClienteService clienteService, ObjectMapper objectMapper, @Lazy ContaService contaService) {
         super(objectMapper);
         this.clienteService = clienteService;
         this.contatoRepository = contatoRepository;

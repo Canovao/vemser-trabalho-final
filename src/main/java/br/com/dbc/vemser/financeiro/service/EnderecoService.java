@@ -7,25 +7,23 @@ import br.com.dbc.vemser.financeiro.dto.EnderecoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.EnderecoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Endereco;
-import br.com.dbc.vemser.financeiro.repository.EnderecoRepository;
+import br.com.dbc.vemser.financeiro.repository.oldRepositories.EnderecoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class EnderecoService extends Servico {
 
-    private final EnderecoRepository enderecoRepository;
+    private final EnderecoRepository2 enderecoRepository;
     private final ClienteService clienteService;
     private final ContaService contaService;
 
-    public EnderecoService(EnderecoRepository enderecoRepository, ClienteService clienteService, ObjectMapper objectMapper, ContaService contaService) {
+    public EnderecoService(EnderecoRepository2 enderecoRepository, ClienteService clienteService, ObjectMapper objectMapper, ContaService contaService) {
         super(objectMapper);
         this.enderecoRepository = enderecoRepository;
         this.clienteService = clienteService;

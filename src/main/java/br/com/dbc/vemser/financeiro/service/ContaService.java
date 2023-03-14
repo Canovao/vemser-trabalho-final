@@ -7,7 +7,7 @@ import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Conta;
 import br.com.dbc.vemser.financeiro.model.Status;
 import br.com.dbc.vemser.financeiro.model.TipoCartao;
-import br.com.dbc.vemser.financeiro.repository.ContaRepository;
+import br.com.dbc.vemser.financeiro.repository.oldRepositories.ContaRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
@@ -19,14 +19,14 @@ import java.util.Random;
 
 @Service
 public class ContaService extends Servico {
-    private final ContaRepository contaRepository;
+    private final ContaRepository2 contaRepository;
     private final ClienteService clienteService;
     private final CartaoService cartaoService;
     private final ContatoService contatoService;
     private final EnderecoService enderecoService;
     private final EmailService emailService;
 
-    public ContaService(ContaRepository contaRepository, @Lazy ClienteService clienteService,
+    public ContaService(ContaRepository2 contaRepository, @Lazy ClienteService clienteService,
                         @Lazy CartaoService cartaoService, @Lazy ContatoService contatoService,
                         @Lazy EnderecoService enderecoService, ObjectMapper objectMapper, EmailService emailService) {
         super(objectMapper);

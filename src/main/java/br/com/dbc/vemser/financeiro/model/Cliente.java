@@ -3,6 +3,7 @@ package br.com.dbc.vemser.financeiro.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,6 +26,9 @@ public class Cliente {
 
     @Column(name = "STATUS")
     private Status status;
+
+    @OneToMany(mappedBy = "cliente")
+    private List<Contato> contatos;
 
     @Override
     public String toString() {

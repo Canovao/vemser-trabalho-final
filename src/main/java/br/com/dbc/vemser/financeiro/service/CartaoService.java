@@ -1,6 +1,5 @@
 package br.com.dbc.vemser.financeiro.service;
 
-import br.com.dbc.vemser.financeiro.controller.ControleListarPorID;
 import br.com.dbc.vemser.financeiro.dto.CartaoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.CartaoDTO;
 import br.com.dbc.vemser.financeiro.dto.CartaoPagarDTO;
@@ -10,7 +9,7 @@ import br.com.dbc.vemser.financeiro.model.Cartao;
 import br.com.dbc.vemser.financeiro.model.CartaoDeCredito;
 import br.com.dbc.vemser.financeiro.model.CartaoDeDebito;
 import br.com.dbc.vemser.financeiro.model.TipoCartao;
-import br.com.dbc.vemser.financeiro.repository.CartaoRepository;
+import br.com.dbc.vemser.financeiro.repository.oldRepositories.CartaoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +24,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 public class CartaoService extends Servico {
 
-    private final CartaoRepository cartaoRepository;
+    private final CartaoRepository2 cartaoRepository;
     private final ContaService contaService;
 
-    public CartaoService(@Lazy ContaService contaService, CartaoRepository cartaoRepository, ObjectMapper objectMapper) {
+    public CartaoService(@Lazy ContaService contaService, CartaoRepository2 cartaoRepository, ObjectMapper objectMapper) {
         super(objectMapper);
         this.cartaoRepository = cartaoRepository;
         this.contaService = contaService;

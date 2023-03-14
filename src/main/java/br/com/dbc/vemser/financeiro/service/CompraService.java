@@ -4,23 +4,22 @@ import br.com.dbc.vemser.financeiro.dto.*;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Compra;
-import br.com.dbc.vemser.financeiro.repository.CompraRepository;
+import br.com.dbc.vemser.financeiro.repository.oldRepositories.CompraRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CompraService extends Servico {
-    private final CompraRepository compraRepository;
+    private final CompraRepository2 compraRepository;
     private final ItemService itemService;
     private final ContaService contaService;
     private final CartaoService cartaoService;
 
-    public CompraService(CompraRepository compraRepository, ObjectMapper objectMapper, ContaService contaService, CartaoService cartaoService, @Lazy ItemService itemService) {
+    public CompraService(CompraRepository2 compraRepository, ObjectMapper objectMapper, ContaService contaService, CartaoService cartaoService, @Lazy ItemService itemService) {
         super(objectMapper);
         this.compraRepository = compraRepository;
         this.contaService = contaService;

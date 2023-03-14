@@ -6,7 +6,7 @@ import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
 import br.com.dbc.vemser.financeiro.model.Cliente;
 import br.com.dbc.vemser.financeiro.model.Status;
-import br.com.dbc.vemser.financeiro.repository.ClienteRepository;
+import br.com.dbc.vemser.financeiro.repository.oldRepositories.ClienteRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -15,9 +15,9 @@ import java.util.List;
 
 @Service
 public class ClienteService extends Servico {
-    private final ClienteRepository clienteRepository;
+    private final ClienteRepository2 clienteRepository;
 
-    public ClienteService(ClienteRepository clienteRepository, ObjectMapper objectMapper) {
+    public ClienteService(ClienteRepository2 clienteRepository, ObjectMapper objectMapper) {
         super(objectMapper);
         this.clienteRepository = clienteRepository;
     }

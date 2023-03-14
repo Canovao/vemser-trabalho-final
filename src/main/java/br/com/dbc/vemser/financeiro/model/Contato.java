@@ -17,12 +17,16 @@ public class Contato {
     @SequenceGenerator(name = "CONTATO_SEQ", sequenceName = "SEQ_CONTATO", allocationSize = 1)
     private Integer idContato;
 
-    @Column(name = "ID_CLIENTE")
-    private Integer idCliente;
+//    @Column(name = "ID_CLIENTE")
+//    private Integer idCliente;
 
     @Column(name = "TELEFONE")
     private String telefone;
 
     @Column(name = "EMAIL")
     private String email;
+
+    @ManyToOne
+    @JoinColumn(name = "ID_CLIENTE")
+    private Cliente cliente;
 }
