@@ -1,4 +1,4 @@
-package br.com.dbc.vemser.financeiro.model;
+package br.com.dbc.vemser.financeiro.entity;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-public class Item {
+public class ItemEntity {
 
     @Id
     @Column(name = "ID_ITEM")
@@ -31,6 +31,6 @@ public class Item {
 
     @ManyToOne
     @JoinColumn(name = "ID_COMPRA")
-    private Compra compra;
+    private CompraEntity compra;
 
 }

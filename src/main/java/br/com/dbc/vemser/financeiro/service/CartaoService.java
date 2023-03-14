@@ -5,12 +5,11 @@ import br.com.dbc.vemser.financeiro.dto.CartaoDTO;
 import br.com.dbc.vemser.financeiro.dto.CartaoPagarDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Cartao;
-import br.com.dbc.vemser.financeiro.model.CartaoDeCredito;
-import br.com.dbc.vemser.financeiro.model.CartaoDeDebito;
-import br.com.dbc.vemser.financeiro.model.TipoCartao;
+import br.com.dbc.vemser.financeiro.entity.CartaoEntity;
+import br.com.dbc.vemser.financeiro.entity.CartaoDeCreditoEntity;
+import br.com.dbc.vemser.financeiro.entity.CartaoDeDebitoEntity;
+import br.com.dbc.vemser.financeiro.entity.TipoCartao;
 import br.com.dbc.vemser.financeiro.repository.CartaoRepository;
-import br.com.dbc.vemser.financeiro.repository.oldRepositories.CartaoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -36,14 +35,14 @@ public class CartaoService extends Servico {
 
     public List<CartaoDTO> listarPorNumeroConta(Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        List<Cartao> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
+        List<CartaoEntity> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
         return cartoes.stream()
                 .map(cartao -> objectMapper.convertValue(cartao, CartaoDTO.class))
                 .toList();
     }
 
     private List<CartaoDTO> listarPorNumeroConta(Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
-        List<Cartao> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
+        List<CartaoEntity> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
         return cartoes.stream()
                 .map(cartao -> objectMapper.convertValue(cartao, CartaoDTO.class))
                 .toList();
@@ -51,15 +50,15 @@ public class CartaoService extends Servico {
 
     public CartaoDTO criar(Integer numeroConta, String senha, TipoCartao tipo) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        List<Cartao> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
+        List<CartaoEntity> cartoes = cartaoRepository.findAllByNumeroConta(numeroConta);
         if (cartoes.size() == 2) {
             throw new RegraDeNegocioException("Usuário já possui dois cartões");
         } else {
-            Cartao cartao;
+            CartaoEntity cartao;
             if (tipo.equals(TipoCartao.DEBITO)) {
-                cartao = new CartaoDeDebito();
+                cartao = new CartaoDeDebitoEntity();
             } else {
-                cartao = new CartaoDeCredito();
+                cartao = new CartaoDeCreditoEntity();
             }
             cartao.setNumeroConta(numeroConta);
             cartao.setDataExpedicao(LocalDate.now());
@@ -76,12 +75,12 @@ public class CartaoService extends Servico {
         contaService.validandoAcessoConta(numeroConta, senha);
 
         //Validando e retornando cartões da conta.
-        Cartao cartao = validarCartao(cartaoPagarDTO, numeroConta);
+        CartaoEntity cartao = validarCartao(cartaoPagarDTO, numeroConta);
 
         /* ********* CARTÃO DE CRÉDITO ********* */
 
         //Validando e pegando cartão de crédito
-        if (cartao instanceof CartaoDeCredito cartaoDeCredito){
+        if (cartao instanceof CartaoDeCreditoEntity cartaoDeCredito){
 
             //Verificando o limite
             if (cartaoDeCredito.getLimite() < valor) {
@@ -89,7 +88,7 @@ public class CartaoService extends Servico {
             }
             //Pagando com o cartão de crédito
             cartaoDeCredito.setLimite(cartaoDeCredito.getLimite() - valor);
-            Cartao cartaoAtualizado = cartaoRepository.editar(cartaoDeCredito.getNumeroCartao(), cartaoDeCredito);
+            CartaoEntity cartaoAtualizado = cartaoRepository.editar(cartaoDeCredito.getNumeroCartao(), cartaoDeCredito);
             CartaoDTO cartaoDTOAtualizado = objectMapper.convertValue(cartaoAtualizado, CartaoDTO.class);
             cartaoDTOAtualizado.setarLimite(cartaoDeCredito.getLimite());
             return cartaoDTOAtualizado;
@@ -98,7 +97,7 @@ public class CartaoService extends Servico {
         /* ********** CARTÃO DE DÉBITO ********* */
 
         //Validando e pagando com cartão de débito
-        if (cartao instanceof CartaoDeDebito cartaoDeDebito){
+        if (cartao instanceof CartaoDeDebitoEntity cartaoDeDebito){
             contaService.sacar(valor, numeroConta, senha);
             return objectMapper.convertValue(cartaoDeDebito, CartaoDTO.class);
         }
@@ -108,13 +107,13 @@ public class CartaoService extends Servico {
 
     public CartaoDTO atualizar(Long numeroCartao, CartaoCreateDTO cartaoCreateDTO, Integer numeroConta, String senha) throws RegraDeNegocioException, BancoDeDadosException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        Cartao cartao = this.getPeloNumeroCartao(numeroCartao);
+        CartaoEntity cartao = this.getPeloNumeroCartao(numeroCartao);
 
-        Cartao cartaoEditado;
+        CartaoEntity cartaoEditado;
         if(cartao.getTipo().equals(TipoCartao.DEBITO)) {
-            cartaoEditado = cartaoRepository.editar(numeroCartao, objectMapper.convertValue(cartaoCreateDTO, CartaoDeDebito.class));
+            cartaoEditado = cartaoRepository.editar(numeroCartao, objectMapper.convertValue(cartaoCreateDTO, CartaoDeDebitoEntity.class));
         } else {
-            cartaoEditado = cartaoRepository.editar(numeroCartao, objectMapper.convertValue(cartaoCreateDTO, CartaoDeCredito.class));
+            cartaoEditado = cartaoRepository.editar(numeroCartao, objectMapper.convertValue(cartaoCreateDTO, CartaoDeCreditoEntity.class));
         }
         return objectMapper.convertValue(cartaoEditado, CartaoDTO.class);
     }
@@ -122,9 +121,9 @@ public class CartaoService extends Servico {
     public void deletar(Long numeroCartao, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
         log.info("Buscando cartão...");
-        Cartao cartao = this.getPeloNumeroCartao(numeroCartao);
+        CartaoEntity cartao = this.getPeloNumeroCartao(numeroCartao);
 
-        List<Cartao> cartoes = cartaoRepository.findAllByNumeroConta(cartao.getNumeroConta());
+        List<CartaoEntity> cartoes = cartaoRepository.findAllByNumeroConta(cartao.getNumeroConta());
 
         if (cartoes.size() == 1) {
             throw new RegraDeNegocioException("Cliente possui apenas um cartão");
@@ -132,7 +131,7 @@ public class CartaoService extends Servico {
 
         //VALIDANDO CARTAO DE CRÉDITO
         if(cartao.getTipo().equals(TipoCartao.CREDITO)){
-            CartaoDeCredito cartaoDeCredito = (CartaoDeCredito) cartao;
+            CartaoDeCreditoEntity cartaoDeCredito = (CartaoDeCreditoEntity) cartao;
             if(cartaoDeCredito.getLimite() < 1000){
                 throw new RegraDeNegocioException("Não é possível remover o cartão com limite em aberto!");
             }
@@ -151,7 +150,7 @@ public class CartaoService extends Servico {
         }
     }
 
-    private Cartao validarCartao(CartaoPagarDTO cartaoPagarDTO, Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
+    private CartaoEntity validarCartao(CartaoPagarDTO cartaoPagarDTO, Integer numeroConta) throws BancoDeDadosException, RegraDeNegocioException {
         return cartaoRepository
                 .findAllByNumeroConta(
                         numeroConta)
@@ -170,7 +169,7 @@ public class CartaoService extends Servico {
         }
     }
 
-    Cartao getPeloNumeroCartao(Long numeroCartao) throws RegraDeNegocioException {
+    CartaoEntity getPeloNumeroCartao(Long numeroCartao) throws RegraDeNegocioException {
         return cartaoRepository.findByNumeroCartao(numeroCartao)
                 .orElseThrow(() -> new RegraDeNegocioException("Cartão não encontrado!"));
     }

@@ -5,10 +5,9 @@ import br.com.dbc.vemser.financeiro.dto.ContatoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.ContatoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Cliente;
-import br.com.dbc.vemser.financeiro.model.Contato;
+import br.com.dbc.vemser.financeiro.entity.ClienteEntity;
+import br.com.dbc.vemser.financeiro.entity.ContatoEntity;
 import br.com.dbc.vemser.financeiro.repository.ContatoRepository;
-import br.com.dbc.vemser.financeiro.repository.oldRepositories.ContatoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
@@ -42,7 +41,7 @@ public class ContatoService extends Servico {
 
     public List<ContatoDTO> listarContatosDoCliente(Integer numeroConta, String senha) throws RegraDeNegocioException {
         return contatoRepository.findAllByCliente(
-                        objectMapper.convertValue(clienteService.visualizarCliente(contaService.validandoAcessoConta(numeroConta, senha).getCliente().getIdCliente()), Cliente.class)
+                        objectMapper.convertValue(clienteService.visualizarCliente(contaService.validandoAcessoConta(numeroConta, senha).getCliente().getIdCliente()), ClienteEntity.class)
                 ).stream()
                 .map(contato -> objectMapper.convertValue(contato, ContatoDTO.class))
                 .toList();
@@ -56,7 +55,7 @@ public class ContatoService extends Servico {
         contatoCreateDTO.setIdCliente(cliente.getIdCliente());
         validarNumeroContato(contatoCreateDTO);
 
-        Contato contato = objectMapper.convertValue(contatoCreateDTO, Contato.class);
+        ContatoEntity contato = objectMapper.convertValue(contatoCreateDTO, ContatoEntity.class);
         return objectMapper.convertValue(contatoRepository.save(contato), ContatoDTO.class);
     }
 
@@ -69,7 +68,7 @@ public class ContatoService extends Servico {
         validarContato(idContato);
         validarNumeroContato(contatoCreateDTO);
 
-        Contato contato = objectMapper.convertValue(contatoCreateDTO, Contato.class);
+        ContatoEntity contato = objectMapper.convertValue(contatoCreateDTO, ContatoEntity.class);
         return objectMapper.convertValue(contatoRepository.editar(idContato, contato), ContatoDTO.class);
     }
 

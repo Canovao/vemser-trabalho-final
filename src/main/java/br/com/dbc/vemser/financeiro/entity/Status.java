@@ -1,4 +1,4 @@
-package br.com.dbc.vemser.financeiro.model;
+package br.com.dbc.vemser.financeiro.entity;
 
 import java.util.Arrays;
 

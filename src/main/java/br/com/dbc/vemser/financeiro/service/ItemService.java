@@ -6,9 +6,8 @@ import br.com.dbc.vemser.financeiro.dto.ItemCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.ItemDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Item;
+import br.com.dbc.vemser.financeiro.entity.ItemEntity;
 import br.com.dbc.vemser.financeiro.repository.ItemRepository;
-import br.com.dbc.vemser.financeiro.repository.oldRepositories.ItemRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -34,12 +33,12 @@ public class ItemService extends Servico {
 
     public List<ItemDTO> adicionar(List<ItemCreateDTO> itensCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        List<Item> itens = itensCreateDTO.stream()
-                .map(itemCreateDTO -> objectMapper.convertValue(itemCreateDTO, Item.class))
+        List<ItemEntity> itens = itensCreateDTO.stream()
+                .map(itemCreateDTO -> objectMapper.convertValue(itemCreateDTO, ItemEntity.class))
                 .toList();
         List<ItemDTO> itensDTO = new ArrayList<>();
-        for(Item item : itens) {
-            Item itemCreated = itemRepository.save(item);
+        for(ItemEntity item : itens) {
+            ItemEntity itemCreated = itemRepository.save(item);
             itensDTO.add(objectMapper.convertValue(itemCreated, ItemDTO.class));
         }
         return itensDTO;

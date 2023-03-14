@@ -4,10 +4,9 @@ import br.com.dbc.vemser.financeiro.dto.ClienteCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.ClienteDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Cliente;
-import br.com.dbc.vemser.financeiro.model.Status;
+import br.com.dbc.vemser.financeiro.entity.ClienteEntity;
+import br.com.dbc.vemser.financeiro.entity.Status;
 import br.com.dbc.vemser.financeiro.repository.ClienteRepository;
-import br.com.dbc.vemser.financeiro.repository.oldRepositories.ClienteRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,7 @@ public class ClienteService extends Servico {
 
     public ClienteDTO adicionarCliente(ClienteCreateDTO clienteCreateDTO) throws BancoDeDadosException, RegraDeNegocioException {
         validarClientePorCPF(clienteCreateDTO);
-        Cliente cliente = objectMapper.convertValue(clienteCreateDTO, Cliente.class);
+        ClienteEntity cliente = objectMapper.convertValue(clienteCreateDTO, ClienteEntity.class);
         return objectMapper.convertValue(clienteRepository.save(cliente), ClienteDTO.class);
     }
 
@@ -57,7 +56,7 @@ public class ClienteService extends Servico {
             throw new RegraDeNegocioException("Digite o CPF do titular da conta!");
         }
 
-        Cliente cliente = objectMapper.convertValue(clienteCreateDTO, Cliente.class);
+        ClienteEntity cliente = objectMapper.convertValue(clienteCreateDTO, ClienteEntity.class);
         return objectMapper.convertValue(clienteRepository.editar(idCliente, cliente), ClienteDTO.class);
     }
 
@@ -79,7 +78,7 @@ public class ClienteService extends Servico {
 
     void validarClientePorCPF(ClienteCreateDTO clienteCreateDTO) throws RegraDeNegocioException {
 
-        Optional<Cliente> cliente = clienteRepository.findByCpf(clienteCreateDTO.getCpf());
+        Optional<ClienteEntity> cliente = clienteRepository.findByCpf(clienteCreateDTO.getCpf());
 
         if(cliente.isEmpty()) {
             return;

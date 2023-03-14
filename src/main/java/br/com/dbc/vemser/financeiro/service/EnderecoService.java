@@ -7,9 +7,8 @@ import br.com.dbc.vemser.financeiro.dto.EnderecoCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.EnderecoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Endereco;
+import br.com.dbc.vemser.financeiro.entity.EnderecoEntity;
 import br.com.dbc.vemser.financeiro.repository.EnderecoRepository;
-import br.com.dbc.vemser.financeiro.repository.oldRepositories.EnderecoRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -57,7 +56,7 @@ public class EnderecoService extends Servico {
         enderecoCreateDTO.setIdCliente(cliente.getIdCliente());
         validarCEPEndereco(enderecoCreateDTO);
 
-        Endereco endereco = objectMapper.convertValue(enderecoCreateDTO, Endereco.class);
+        EnderecoEntity endereco = objectMapper.convertValue(enderecoCreateDTO, EnderecoEntity.class);
         return objectMapper.convertValue(enderecoRepository.save(endereco), EnderecoDTO.class);
     }
 
@@ -70,7 +69,7 @@ public class EnderecoService extends Servico {
         validarEndereco(idEndereco);
         validarCEPEndereco(enderecoCreateDTO);
 
-        Endereco endereco = objectMapper.convertValue(enderecoCreateDTO, Endereco.class);
+        EnderecoEntity endereco = objectMapper.convertValue(enderecoCreateDTO, EnderecoEntity.class);
         return objectMapper.convertValue(enderecoRepository.editar(idEndereco, endereco), EnderecoDTO.class);
     }
 

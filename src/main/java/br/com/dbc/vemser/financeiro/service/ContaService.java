@@ -3,12 +3,11 @@ package br.com.dbc.vemser.financeiro.service;
 import br.com.dbc.vemser.financeiro.dto.*;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Cliente;
-import br.com.dbc.vemser.financeiro.model.Conta;
-import br.com.dbc.vemser.financeiro.model.Status;
-import br.com.dbc.vemser.financeiro.model.TipoCartao;
+import br.com.dbc.vemser.financeiro.entity.ClienteEntity;
+import br.com.dbc.vemser.financeiro.entity.ContaEntity;
+import br.com.dbc.vemser.financeiro.entity.Status;
+import br.com.dbc.vemser.financeiro.entity.TipoCartao;
 import br.com.dbc.vemser.financeiro.repository.ContaRepository;
-import br.com.dbc.vemser.financeiro.repository.oldRepositories.ContaRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
@@ -58,7 +57,7 @@ public class ContaService extends Servico {
         ClienteDTO clienteDTO = clienteService.adicionarCliente(contaCreateDTO.getClienteCreateDTO());
 
         //Criando conta
-        Conta conta = contaRepository.save(criandoDados(contaCreateDTO, clienteDTO));
+        ContaEntity conta = contaRepository.save(criandoDados(contaCreateDTO, clienteDTO));
 
         //Criando contato
         contaCreateDTO.getContatoCreateDTO().setIdCliente(clienteDTO.getIdCliente());
@@ -82,7 +81,7 @@ public class ContaService extends Servico {
         ContaDTO contaDTO = validandoAcessoConta(numeroConta, senha);
 
         //Alterando senha
-        Conta conta = objectMapper.convertValue(contaDTO, Conta.class);
+        ContaEntity conta = objectMapper.convertValue(contaDTO, ContaEntity.class);
         conta.setSenha(novaSenha);
 
         //Executando edição
@@ -99,7 +98,7 @@ public class ContaService extends Servico {
         }
 
         //Sacando valor
-        Conta conta = objectMapper.convertValue(contaDTO, Conta.class);
+        ContaEntity conta = objectMapper.convertValue(contaDTO, ContaEntity.class);
         conta.setSaldo(conta.getSaldo() - valor);
         return objectMapper.convertValue(contaRepository.editar(conta.getNumeroConta(), conta), ContaDTO.class);
     }
@@ -109,14 +108,14 @@ public class ContaService extends Servico {
         ContaDTO contaDTO = retornarContaCliente(numeroConta, senha);
 
         //Depositando valor
-        Conta conta = objectMapper.convertValue(contaDTO, Conta.class);
+        ContaEntity conta = objectMapper.convertValue(contaDTO, ContaEntity.class);
         conta.setSaldo(conta.getSaldo() + valor);
         return objectMapper.convertValue(contaRepository.editar(conta.getNumeroConta(), conta), ContaDTO.class);
     }
 
     public boolean reativarConta(String cpf, String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-        Conta contaReativar = contaRepository.listar().stream()
+        ContaEntity contaReativar = contaRepository.listar().stream()
                 .filter(conta -> conta.getCliente().getCpf().equals(cpf))
                 .findFirst()
                 .orElseThrow(() -> new RegraDeNegocioException("Este CPF não possui registros!"));
@@ -132,7 +131,7 @@ public class ContaService extends Servico {
 
     public void removerConta(Integer numeroConta, String login, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         if (AdminValidation.validar(login, senha)) {
-            Conta conta = contaRepository.consultarNumeroConta(numeroConta);
+            ContaEntity conta = contaRepository.consultarNumeroConta(numeroConta);
             ContaDTO contaAserRemovida = objectMapper.convertValue(conta, ContaDTO.class);
 
             if(Objects.isNull(contaAserRemovida)){
@@ -160,14 +159,14 @@ public class ContaService extends Servico {
     }
 
 
-    private Conta criandoDados(ContaCreateDTO contaCreateDTO, ClienteDTO clienteDTO){
+    private ContaEntity criandoDados(ContaCreateDTO contaCreateDTO, ClienteDTO clienteDTO){
         Random random = new Random();
 
         //Convertendo a contaCreate em Conta
-        Conta conta = objectMapper.convertValue(contaCreateDTO, Conta.class);
+        ContaEntity conta = objectMapper.convertValue(contaCreateDTO, ContaEntity.class);
 
         //Setando na conta o novo cliente criado no banco de dados
-        conta.setCliente(objectMapper.convertValue(contaCreateDTO.getClienteCreateDTO(), Cliente.class));
+        conta.setCliente(objectMapper.convertValue(contaCreateDTO.getClienteCreateDTO(), ClienteEntity.class));
 
         //Setando o ‘id’ respetivo gerado na criação do cliente
         conta.getCliente().setIdCliente(clienteDTO.getIdCliente());
@@ -178,7 +177,7 @@ public class ContaService extends Servico {
     }
 
     public ContaDTO validandoAcessoConta(Integer numeroConta, String senha) throws RegraDeNegocioException {
-        Conta conta = contaRepository.consultarNumeroConta(numeroConta);
+        ContaEntity conta = contaRepository.consultarNumeroConta(numeroConta);
 
         if(Objects.isNull(conta)){
             throw new RegraDeNegocioException("Conta inválida!");

@@ -4,9 +4,8 @@ import br.com.dbc.vemser.financeiro.dto.TransferenciaCreateDTO;
 import br.com.dbc.vemser.financeiro.dto.TransferenciaDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Transferencia;
+import br.com.dbc.vemser.financeiro.entity.TransferenciaEntity;
 import br.com.dbc.vemser.financeiro.repository.TransferenciaRepository;
-import br.com.dbc.vemser.financeiro.repository.oldRepositories.TransferenciaRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class TransferenciaService extends Servico {
 
     public TransferenciaDTO adicionarTransferencia(TransferenciaCreateDTO transferenciaCreateDTO, Integer numeroConta, String senha) throws BancoDeDadosException, RegraDeNegocioException {
         contaService.validandoAcessoConta(numeroConta, senha);
-        Transferencia transferencia = objectMapper.convertValue(transferenciaCreateDTO, Transferencia.class);
+        TransferenciaEntity transferencia = objectMapper.convertValue(transferenciaCreateDTO, TransferenciaEntity.class);
         return objectMapper.convertValue(transferenciaRepository.save(transferencia), TransferenciaDTO.class);
     }
 

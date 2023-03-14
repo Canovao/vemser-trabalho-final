@@ -1,6 +1,6 @@
 package br.com.dbc.vemser.financeiro.dto;
 
-import br.com.dbc.vemser.financeiro.model.Status;
+import br.com.dbc.vemser.financeiro.entity.Status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

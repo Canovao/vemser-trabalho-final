@@ -1,4 +1,4 @@
-package br.com.dbc.vemser.financeiro.model;
+package br.com.dbc.vemser.financeiro.entity;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-public class Conta {
+public class ContaEntity {
 
     @Id
     @Column(name = "NUMERO_CONTA")
@@ -18,8 +18,8 @@ public class Conta {
     private Integer numeroConta;
 
     @OneToOne
-    @JoinColumn(name = "ID_CLIENTE")
-    private Cliente cliente;
+    @JoinColumn(name = "ID_CLIENTE", referencedColumnName = "ID_CLIENTE")
+    private ClienteEntity cliente;
 
     @Column(name = "SENHA")
     private String senha;

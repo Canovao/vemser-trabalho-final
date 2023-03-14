@@ -2,11 +2,10 @@ package br.com.dbc.vemser.financeiro.service;
 
 import br.com.dbc.vemser.financeiro.dto.CartaoDTO;
 import br.com.dbc.vemser.financeiro.dto.ClienteDTO;
-import br.com.dbc.vemser.financeiro.dto.ContaDTO;
 import br.com.dbc.vemser.financeiro.dto.ContatoDTO;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Conta;
+import br.com.dbc.vemser.financeiro.entity.ContaEntity;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -35,7 +34,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    public void sendEmailCreate(Conta conta, CartaoDTO cartaoDTO) throws RegraDeNegocioException, BancoDeDadosException {
+    public void sendEmailCreate(ContaEntity conta, CartaoDTO cartaoDTO) throws RegraDeNegocioException, BancoDeDadosException {
         MimeMessage mimeMessage = emailSender.createMimeMessage();
         ContatoDTO contato = contatoService.listarContatosDoCliente(conta.getNumeroConta(), conta.getSenha()).stream().findFirst().orElseThrow();
 
@@ -52,7 +51,7 @@ public class EmailService {
         }
     }
 
-    public String getTemplateCreate(Conta conta, CartaoDTO cartaoDTO) throws IOException, TemplateException {
+    public String getTemplateCreate(ContaEntity conta, CartaoDTO cartaoDTO) throws IOException, TemplateException {
         Map<String, Object> dados = new HashMap<>();
 
         dados.put("nome", conta.getCliente().getNome());
@@ -69,7 +68,7 @@ public class EmailService {
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, dados);
     }
 
-    public void sendEmailDelete(Conta conta) throws RegraDeNegocioException, BancoDeDadosException {
+    public void sendEmailDelete(ContaEntity conta) throws RegraDeNegocioException, BancoDeDadosException {
         MimeMessage mimeMessage = emailSender.createMimeMessage();
         ContatoDTO contato = contatoService.listarContatosDoCliente(conta.getNumeroConta(), conta.getSenha()).stream().findFirst().orElseThrow();
 

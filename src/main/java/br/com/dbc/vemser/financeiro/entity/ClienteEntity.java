@@ -1,4 +1,4 @@
-package br.com.dbc.vemser.financeiro.model;
+package br.com.dbc.vemser.financeiro.entity;
 
 import lombok.*;
 
@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-public class Cliente {
+public class ClienteEntity {
 
     @Id
     @Column(name = "ID_CLIENTE")
@@ -28,7 +28,7 @@ public class Cliente {
     private Status status;
 
     @OneToMany(mappedBy = "cliente")
-    private List<Contato> contatos;
+    private List<ContatoEntity> contatos;
 
     @Override
     public String toString() {

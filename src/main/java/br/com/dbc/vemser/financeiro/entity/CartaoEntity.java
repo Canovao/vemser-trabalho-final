@@ -1,4 +1,4 @@
-package br.com.dbc.vemser.financeiro.model;
+package br.com.dbc.vemser.financeiro.entity;
 
 import lombok.*;
 
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public abstract class Cartao {
+public abstract class CartaoEntity {
 
     @Id
     @Column(name = "NUMERO_CARTAO")

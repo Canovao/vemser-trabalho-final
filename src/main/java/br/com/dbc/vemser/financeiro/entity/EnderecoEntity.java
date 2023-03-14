@@ -1,4 +1,4 @@
-package br.com.dbc.vemser.financeiro.model;
+package br.com.dbc.vemser.financeiro.entity;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-public class Endereco {
+public class EnderecoEntity {
 
     @Id
     @Column(name = "ID_ENDERECO")

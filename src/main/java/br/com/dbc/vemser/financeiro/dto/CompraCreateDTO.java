@@ -1,6 +1,5 @@
 package br.com.dbc.vemser.financeiro.dto;
 
-import br.com.dbc.vemser.financeiro.model.Cartao;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;

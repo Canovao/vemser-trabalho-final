@@ -1,6 +1,6 @@
 package br.com.dbc.vemser.financeiro.dto;
 
-import br.com.dbc.vemser.financeiro.model.TipoCartao;
+import br.com.dbc.vemser.financeiro.entity.TipoCartao;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 

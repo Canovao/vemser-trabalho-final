@@ -3,9 +3,8 @@ package br.com.dbc.vemser.financeiro.service;
 import br.com.dbc.vemser.financeiro.dto.*;
 import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
 import br.com.dbc.vemser.financeiro.exception.RegraDeNegocioException;
-import br.com.dbc.vemser.financeiro.model.Compra;
+import br.com.dbc.vemser.financeiro.entity.CompraEntity;
 import br.com.dbc.vemser.financeiro.repository.CompraRepository;
-import br.com.dbc.vemser.financeiro.repository.oldRepositories.CompraRepository2;
 import br.com.dbc.vemser.financeiro.utils.AdminValidation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Lazy;
@@ -85,7 +84,7 @@ public class CompraService extends Servico {
 
         cartaoService.pagar(cartaoPagarDTO, valorTotal, numeroConta, senha);
 
-        Compra compra = compraRepository.save(objectMapper.convertValue(compraCreateDTO, Compra.class));
+        CompraEntity compra = compraRepository.save(objectMapper.convertValue(compraCreateDTO, CompraEntity.class));
         CompraItensDTO compraItensDTO = objectMapper.convertValue(compra, CompraItensDTO.class);
 
         for (ItemCreateDTO item : compraCreateDTO.getItens()) {

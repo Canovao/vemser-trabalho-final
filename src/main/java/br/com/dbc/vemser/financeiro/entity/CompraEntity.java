@@ -1,4 +1,4 @@
-package br.com.dbc.vemser.financeiro.model;
+package br.com.dbc.vemser.financeiro.entity;
 
 import lombok.*;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-public class Compra {
+public class CompraEntity {
 
     @Id
     @Column(name = "ID_COMPRA")
@@ -29,5 +29,5 @@ public class Compra {
     private LocalDate data;
 
     @OneToMany(mappedBy = "compra")
-    private List<Item> items;
+    private List<ItemEntity> items;
 }

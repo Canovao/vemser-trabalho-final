@@ -1,7 +1,7 @@
 package br.com.dbc.vemser.financeiro.dto;
 
-import br.com.dbc.vemser.financeiro.model.Status;
-import br.com.dbc.vemser.financeiro.model.TipoCartao;
+import br.com.dbc.vemser.financeiro.entity.Status;
+import br.com.dbc.vemser.financeiro.entity.TipoCartao;
 import lombok.Data;
 
 import java.time.LocalDate;

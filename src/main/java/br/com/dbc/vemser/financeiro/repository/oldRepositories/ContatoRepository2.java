@@ -1,13 +1,7 @@
 package br.com.dbc.vemser.financeiro.repository.oldRepositories;
 
 
-import br.com.dbc.vemser.financeiro.exception.BancoDeDadosException;
-import br.com.dbc.vemser.financeiro.model.Contato;
 import org.springframework.stereotype.Repository;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Repository
 public class ContatoRepository2 {

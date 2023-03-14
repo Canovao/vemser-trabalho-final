@@ -1,21 +1,20 @@
-package br.com.dbc.vemser.financeiro.model;
+package br.com.dbc.vemser.financeiro.entity;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
-public class CartaoDeCredito extends Cartao {
+public class CartaoDeCreditoEntity extends CartaoEntity {
 
     @Column(name = "LIMITE")
     private double limite;
 
-    public CartaoDeCredito() {
+    public CartaoDeCreditoEntity() {
         this.limite = 1000;
     }
 

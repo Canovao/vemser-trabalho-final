@@ -1,10 +1,7 @@
 package br.com.dbc.vemser.financeiro.dto;
 
-import br.com.dbc.vemser.financeiro.model.Status;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import br.com.dbc.vemser.financeiro.entity.Status;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 
 @Data
