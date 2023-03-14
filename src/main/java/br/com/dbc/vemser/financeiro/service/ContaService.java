@@ -150,7 +150,7 @@ public class ContaService extends Servico {
             cartaoService.deletarTodosCartoes(numeroConta);
 
             //Deletando conta
-            contaRepository.delete(numeroConta);
+            contaRepository.softDelete(numeroConta);
 
             //Deletando cliente
             clienteService.deletarCliente(contaAserRemovida.getCliente().getIdCliente());
